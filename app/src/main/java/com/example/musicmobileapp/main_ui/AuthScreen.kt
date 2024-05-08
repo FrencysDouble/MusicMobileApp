@@ -10,11 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.example.musicmobileapp.controllers.AuthController
 import com.example.musicmobileapp.main_ui.navigation.Routes
 
 
 @Composable
-fun AuthScreen(navController: NavHostController)
+fun AuthScreen(navController: NavHostController, controller: AuthController)
 {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {

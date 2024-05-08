@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.musicmobileapp.di.ControllersModule
 import com.example.musicmobileapp.main_ui.AuthScreen
 import com.example.musicmobileapp.main_ui.HomeScreen
 import com.example.musicmobileapp.main_ui.LoadingScreen
@@ -14,7 +15,7 @@ import com.example.musicmobileapp.main_ui.SearchScreen
 import kotlinx.coroutines.delay
 
 @Composable
-fun MainNavigation() {
+fun MainNavigation(controllersModule: ControllersModule) {
     val navController = rememberNavController()
 
     val isUserLoggedIn = false
@@ -41,10 +42,10 @@ fun MainNavigation() {
             LoadingScreen(navController)
         }
         composable(Routes.Identification.Reg.route) {
-            RegScreen(navController)
+            RegScreen(navController,controllersModule.provideAuthController())
         }
         composable(Routes.Identification.Auth.route) {
-            AuthScreen(navController)
+            AuthScreen(navController,controllersModule.provideAuthController())
         }
         composable(Routes.NavBar.Main.route) {
             MainScreen(navController)

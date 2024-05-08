@@ -1,28 +1,28 @@
 package com.example.musicmobileapp.network
 
-import com.example.musicmobileapp.di.ApiModule
 import com.example.musicmobileapp.models.UserModel
 import com.example.musicmobileapp.network.api.AuthApi
-import retrofit2.Retrofit
+
+import okhttp3.ResponseBody
+import retrofit2.Response
 import javax.inject.Inject
 
-class MainAPIController(authApi: AuthApi) : AuthApiInterface{
-    @Inject lateinit var apiModule: ApiModule
+class MainAPIController(private val authApi: AuthApi) : AuthApiInterface {
 
-    private val retrofit: Retrofit
-        get() = apiModule.provideRetrofit()
 
-    private val authApi : AuthApi
-        get() = apiModule.provideAuthApi()
-
-    override suspend fun auth(userModel: UserModel) {
-        authApi.auth(userModel)
+    override suspend fun auth(userModel: UserModel): Response<ResponseBody> {
+        return authApi.auth(userModel)
     }
 
+    override suspend fun reg(userModel: UserModel): Response<ResponseBody> {
+        return authApi.reg(userModel)
+    }
 }
 
 
 interface AuthApiInterface
 {
-    suspend fun auth(userModel: UserModel)
+    suspend fun auth(userModel: UserModel): Response<ResponseBody>
+
+    suspend fun reg(userModel: UserModel): Response<ResponseBody>
 }
