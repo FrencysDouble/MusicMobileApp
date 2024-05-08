@@ -24,7 +24,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         controllersModule = DaggerControllersModule.create()
         apiModule = DaggerApiModule.create()
-        mainAPIController = MainAPIController(apiModule.provideAuthApi())
+
+        mainAPIController = MainAPIController(
+            apiModule.provideAuthApi(),
+            apiModule.provideMusicApi())
 
         setContent {
             MusicMobileAppTheme {

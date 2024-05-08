@@ -9,4 +9,8 @@ object ApiRoutes {
 
     const val AUTH = "user/auth"
     const val REGISTR = "user/reg"
+
+    // Music API
+
+    const val STREAM = "music/stream/{id}"
 }

@@ -1,6 +1,7 @@
 package com.example.musicmobileapp.di
 
 import com.example.musicmobileapp.network.api.AuthApi
+import com.example.musicmobileapp.network.api.MusicApi
 import dagger.Component
 import retrofit2.Retrofit
 import javax.inject.Singleton
@@ -10,7 +11,8 @@ interface ApiModule {
 
     fun provideRetrofit(): Retrofit
 
-    @Singleton
     fun provideAuthApi(): AuthApi
+
+    fun provideMusicApi(): MusicApi
 
 }
