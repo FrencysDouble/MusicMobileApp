@@ -20,3 +20,10 @@ val mainBackgroundAccent = Color(0xFFF4F4F4)
 val textPrimary = Color(0xFF1A1A1A)
 val textSecondary = Color(0xFF7F7F7F)
 val textTertiary = Color(0xFFB2B2B2)
+
+//ProgressBar
+
+val progressOne = Color(0xFFFBAF20)
+val progressTwo = Color(0xFFFCECD1)
+
+val gestureButton = Color(0xFFF1F2F2)

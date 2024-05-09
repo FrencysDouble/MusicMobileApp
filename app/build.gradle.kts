@@ -66,6 +66,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation ("androidx.compose.material:material-icons-extended:")
     implementation ("androidx.navigation:navigation-compose:2.8.0-alpha08")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     // Network
     implementation ("com.squareup.okhttp3:okhttp:4.9.1")
