@@ -29,6 +29,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -63,6 +64,7 @@ import com.example.musicmobileapp.ui.theme.mainBackground
 import com.example.musicmobileapp.ui.theme.mainPrimary
 import com.example.musicmobileapp.ui.theme.progressOne
 import com.example.musicmobileapp.ui.theme.progressTwo
+import com.example.musicmobileapp.ui.theme.textSecondary
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -81,11 +83,11 @@ fun MusicPlayerScreen()
             .fillMaxSize())
         {
             Image(painter = painterResource(id = R.drawable.photo), contentDescription ="" ,Modifier.size(350.dp))
-            ProgressBarDemo()
+            ContainerView(totalDuration = 333)
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .padding(top = 100.dp)) {
+                    .padding(top = 25.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "Bohemian Rhapsody", fontSize = 23.sp)
                     IconButton(onClick = { /*TODO*/ },
@@ -156,13 +158,17 @@ fun MainPlayer()
 }
 
 @Composable
-fun ContainerView() {
+fun ContainerView(totalDuration: Int) {
     var buttonPosition = remember { mutableStateOf(0.dp) }
     val maxWidth = remember { mutableStateOf(0.dp) }
+    val trackDuration = remember { mutableStateOf(totalDuration) }
+    val currentTime = remember { mutableStateOf(0) }
+    val timeLeft = remember { mutableStateOf(0) }
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .wrapContentSize()
             .background(mainBackground)
+            .padding(top = 20.dp)
             .layout { measurable, constraints ->
                 maxWidth.value = constraints.maxWidth.toDp()
                 val placeable = measurable.measure(constraints)
@@ -181,6 +187,8 @@ fun ContainerView() {
             },
             onProgressBarClick = { clickPosition ->
                 buttonPosition.value = clickPosition.coerceIn(0.dp, maxWidth.value)
+                currentTime.value = ((clickPosition.value / maxWidth.value.value) * trackDuration.value).toInt()
+                timeLeft.value = (trackDuration.value - currentTime.value)
             }
         )
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopStart)
@@ -190,9 +198,13 @@ fun ContainerView() {
                 maxWidth = maxWidth.value,
                 onButtonPositionChange = { newPosition ->
                     buttonPosition.value = newPosition
+                    currentTime.value = ((newPosition.value / maxWidth.value.value) * trackDuration.value).toInt()
+                    timeLeft.value = (trackDuration.value - currentTime.value)
+
                 }
             )
         }
+        TextViewProgressBar(currentTime = currentTime.value, timeLeft = timeLeft.value)
     }
 }
 
@@ -204,8 +216,8 @@ fun MusicPlayerProgressBar(
     onButtonPositionChange: (Dp) -> Unit,
     onProgressBarClick: (Dp) -> Unit
 ) {
-    val backgroundColor = Color.Gray.copy(alpha = 0.3f)
-    val progressColor = Color.Green
+    val backgroundColor = progressTwo
+    val progressColor = progressOne
 
     Box(
         modifier = modifier
@@ -268,10 +280,42 @@ fun DragGestureButton(
         )
     }
 }
+@Composable
+fun TextViewProgressBar(currentTime : Int,timeLeft : Int)
+{
+    Row(
+        Modifier
+            .fillMaxWidth()) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 30.dp), contentAlignment = Alignment.CenterStart)
+        {
+            Text(
+                text = formatTime(currentTime),
+                modifier = Modifier.padding(top = 8.dp),
+                color = textSecondary
+            )
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+
+                Text(
+                    text = "-" + formatTime(timeLeft),
+                    modifier = Modifier.padding(top = 8.dp, start = 16.dp),
+                    color = textSecondary
+                )
+            }
+        }
+    }
+}
+
+fun formatTime(seconds: Int): String {
+    val minutes = seconds / 60
+    val remainingSeconds = seconds % 60
+    return "$minutes:${String.format("%02d", remainingSeconds)}"
+}
 
 @Composable
 @Preview
 fun ProgressBarView()
 {
-    ContainerView()
+    ContainerView(111)
 }
