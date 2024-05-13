@@ -12,11 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.example.musicmobileapp.controllers.AuthController
 import com.example.musicmobileapp.main_ui.navigation.Routes
+import javax.inject.Inject
 
 
 @Composable
 fun AuthScreen(navController: NavHostController, controller: AuthController)
 {
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = "AuthScreen")

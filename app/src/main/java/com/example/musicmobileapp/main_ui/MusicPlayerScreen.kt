@@ -2,9 +2,7 @@ package com.example.musicmobileapp.main_ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
@@ -22,56 +20,50 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.consumeAllChanges
-import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.ConstraintSet
-import androidx.constraintlayout.compose.Dimension
+import androidx.navigation.NavHostController
 import com.example.musicmobileapp.R
+import com.example.musicmobileapp.controllers.MusicPlayerController
+import com.example.musicmobileapp.network.service.MusicPlayerService
 import com.example.musicmobileapp.ui.theme.gestureButton
 import com.example.musicmobileapp.ui.theme.mainBackground
 import com.example.musicmobileapp.ui.theme.mainPrimary
 import com.example.musicmobileapp.ui.theme.progressOne
 import com.example.musicmobileapp.ui.theme.progressTwo
 import com.example.musicmobileapp.ui.theme.textSecondary
-import kotlin.math.absoluteValue
-import kotlin.math.roundToInt
 
 
 @Composable
-fun MusicPlayerScreen()
+fun MusicPlayerScreen(
+    navController: NavHostController,
+    controller: MusicPlayerController
+)
+
 {
+    val musicData by controller.musicData.observeAsState()
+
+    val isPlaying = remember { mutableStateOf(false) }
+
+    controller.dataGetting()
+
+
 
     Column (
         Modifier
@@ -100,38 +92,14 @@ fun MusicPlayerScreen()
                 }
                 Text(text = "Queen")
             }
-            MainPlayer()
+            MainPlayer(isPlaying,controller)
 
         }
     }
 
 }
-@Composable
-@Preview
-fun previw()
-{
-    MusicPlayerScreen()
-}
-
-
-@Composable
-fun ProgressBarDemo() {
-    var progress by remember { mutableStateOf(0.5f) }
-
-    Column(
-        modifier = Modifier
-            .wrapContentSize()
-            .padding(top = 16.dp)
-    ) {
-        LinearProgressIndicator(
-            progress = progress,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
-
 @Composable()
-fun MainPlayer()
+fun MainPlayer(isPlaying: MutableState<Boolean>,controller: MusicPlayerController)
 {
     Row (
         Modifier
@@ -143,8 +111,23 @@ fun MainPlayer()
         IconButton(onClick = { /*TODO*/ },Modifier.padding(end = 20.dp)) {
             Image(painter = painterResource(id = R.drawable.ma_skip_previous), contentDescription ="")
         }
-        IconButton(onClick = { /*TODO*/ }) {
-            Image(painter = painterResource(id = R.drawable.ma_pause), contentDescription = "")
+        IconButton(onClick = {
+
+            if (isPlaying.value) {
+                controller.onPlayerStart()
+                isPlaying.value = false
+            }
+            else
+            {
+                controller.onPlayerPause()
+                isPlaying.value = true
+            }
+        }) {
+            Image(painter = painterResource(
+                id = when(isPlaying.value) {
+                true ->  R.drawable.ma_pause
+                false -> R.drawable.ma_launch }),
+                contentDescription = "")
         }
         IconButton(onClick = { /*TODO*/ },Modifier.padding(start = 20.dp)) {
             Image(painter = painterResource(id = R.drawable.ma_skip_next), contentDescription = "")
@@ -311,11 +294,4 @@ fun formatTime(seconds: Int): String {
     val minutes = seconds / 60
     val remainingSeconds = seconds % 60
     return "$minutes:${String.format("%02d", remainingSeconds)}"
-}
-
-@Composable
-@Preview
-fun ProgressBarView()
-{
-    ContainerView(111)
 }
