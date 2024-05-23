@@ -3,6 +3,8 @@ package com.example.musicmobileapp.di
 import com.example.musicmobileapp.network.AuthApiInterface
 import com.example.musicmobileapp.network.MainAPIController
 import com.example.musicmobileapp.network.MusicApiInterface
+import com.example.musicmobileapp.network.api.AlbumApi
+import com.example.musicmobileapp.network.api.ArtistApi
 import com.example.musicmobileapp.network.api.AuthApi
 import com.example.musicmobileapp.network.api.MusicApi
 import com.github.klee0kai.stone.annotations.module.BindInstance
@@ -23,6 +25,13 @@ interface ApiModule {
 
     @Provide(cache = Provide.CacheType.Soft)
     fun provideMusicApi(retrofit: Retrofit = this.retrofit()) : MusicApi
+
+    @Provide(cache = Provide.CacheType.Soft)
+    fun provideArtistApi(retrofit: Retrofit = this.retrofit()) : ArtistApi
+
+    @Provide(cache = Provide.CacheType.Soft)
+    fun provideAlbumApi(retrofit: Retrofit = this.retrofit()) : AlbumApi
+
 
 }
 

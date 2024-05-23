@@ -8,6 +8,7 @@ import com.example.musicmobileapp.controllers.SearchScreenController
 import com.example.musicmobileapp.network.AuthApiInterface
 import com.example.musicmobileapp.network.MainAPIController
 import com.example.musicmobileapp.network.MusicApiInterface
+import com.example.musicmobileapp.network.SearchApiInterface
 import com.example.musicmobileapp.network.service.MusicPlayerService
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
@@ -34,7 +35,7 @@ interface ControllersModule {
     fun provideMusicPlayerService(exoPlayer: ExoPlayer = provideExoPLayer()): MusicPlayerService
 
     @Provide(cache = Provide.CacheType.Soft)
-    fun provideSearchController() : SearchScreenController
+    fun provideSearchController(searchApiInterface: SearchApiInterface = mApiController()) : SearchScreenController
 
 
 

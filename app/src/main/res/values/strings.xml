@@ -5,4 +5,6 @@
 
     <string name="screen_search_history">История</string>
     <string name="screen_search_artist">Исполнитель</string>
+    <string name="screen_search_album">Альбом</string>
+    <string name="screen_search_track">Трек</string>
 </resources>
