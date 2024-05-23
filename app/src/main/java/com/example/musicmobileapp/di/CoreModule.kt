@@ -3,7 +3,15 @@ package com.example.musicmobileapp.di
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.media.MediaCodec
+import android.media.MediaFormat
+import androidx.media3.common.C
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
+import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
+import androidx.media3.exoplayer.upstream.DefaultAllocator
 import androidx.media3.extractor.ts.TsExtractor.Mode
 import com.example.musicmobileapp.controllers.AuthController
 import com.example.musicmobileapp.controllers.MusicPlayerController
@@ -44,13 +52,20 @@ open class CoreModule () {
             .build()
     }
 
+    @UnstableApi
     @Provide
     open fun provideExoPlayer(context: Context) : ExoPlayer
     {
-        return ExoPlayer.Builder(context).build()
+
+        val customAllocator = DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE * 2)
+        val loadControl = DefaultLoadControl.Builder()
+            .setAllocator(customAllocator)
+            .setBufferDurationsMs(5000, 25000, 5000, 5000)
+            .setTargetBufferBytes(1024 * 1024 * 4)
+            .build()
+
+        return ExoPlayer.Builder(context)
+            .setLoadControl(loadControl).build()
     }
-
-
-
 
 }

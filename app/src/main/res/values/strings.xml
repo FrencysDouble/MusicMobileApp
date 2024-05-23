@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">MusicMobileApp</string>
+
+    <string name="screen_search_hint_search">Поиск</string>
+
+    <string name="screen_search_history">История</string>
+    <string name="screen_search_artist">Исполнитель</string>
 </resources>

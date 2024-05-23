@@ -5,8 +5,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.musicmobileapp.controllers.AuthController
-import com.example.musicmobileapp.controllers.MusicPlayerController
 import com.example.musicmobileapp.di.ControllersModule
 import com.example.musicmobileapp.main_ui.AuthScreen
 import com.example.musicmobileapp.main_ui.HomeScreen
@@ -16,7 +14,6 @@ import com.example.musicmobileapp.main_ui.MusicPlayerScreen
 import com.example.musicmobileapp.main_ui.RegScreen
 import com.example.musicmobileapp.main_ui.SearchScreen
 import kotlinx.coroutines.delay
-import javax.inject.Inject
 
 @Composable
 fun MainNavigation(controllersModule: ControllersModule) {
@@ -57,14 +54,14 @@ fun MainNavigation(controllersModule: ControllersModule) {
             MainScreen(navController)
         }
         composable(Routes.NavBar.Search.route) {
-            SearchScreen(navController)
+            SearchScreen(navController,controllersModule.provideSearchController())
         }
         composable(Routes.NavBar.Home.route) {
             HomeScreen(navController)
         }
         composable(Routes.MusicPlayerScreen.route)
         {
-            MusicPlayerScreen(navController,controllersModule.provideMusicPlayerController())
+            MusicPlayerScreen(navController,controllersModule.provideMusicPlayerController(),controllersModule.provideExoPLayer())
         }
     }
 }

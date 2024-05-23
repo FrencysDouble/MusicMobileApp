@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.media3.exoplayer.ExoPlayer
 import com.example.musicmobileapp.controllers.AuthController
 import com.example.musicmobileapp.controllers.MusicPlayerController
+import com.example.musicmobileapp.controllers.SearchScreenController
 import com.example.musicmobileapp.network.AuthApiInterface
 import com.example.musicmobileapp.network.MainAPIController
 import com.example.musicmobileapp.network.MusicApiInterface
@@ -31,6 +32,9 @@ interface ControllersModule {
 
     @Provide(cache = Provide.CacheType.Soft)
     fun provideMusicPlayerService(exoPlayer: ExoPlayer = provideExoPLayer()): MusicPlayerService
+
+    @Provide(cache = Provide.CacheType.Soft)
+    fun provideSearchController() : SearchScreenController
 
 
 
