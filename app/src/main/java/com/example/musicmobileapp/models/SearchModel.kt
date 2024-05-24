@@ -1,8 +1,6 @@
 package com.example.musicmobileapp.models
 
-import android.util.Log
 import com.example.musicmobileapp.network.api.ApiRoutes.BASE_FILE_URL
-import com.example.musicmobileapp.network.api.ApiRoutes.BASE_URL
 import retrofit2.Response
 
 data class SearchModel(
@@ -21,10 +19,15 @@ data class SearchModel(
 
     companion object
     {
-        fun map(arl: Response<List<ArtistModel>>, all: Response<List<AlbumModel>>): List<SearchModel>
+        fun map(
+            arl: Response<List<ArtistModel>>,
+            all: Response<List<AlbumModel>>,
+            tll: Response<List<TrackModel>>
+        ): List<SearchModel>
         {
             val artistList = arl.body() ?: emptyList()
             val albumList = all.body() ?: emptyList()
+            val trackList = tll.body() ?: emptyList()
             val mappedData = emptyList<SearchModel>().toMutableList()
 
             for (am in artistList) {
@@ -53,22 +56,16 @@ data class SearchModel(
                 )
             }
 
-
-
-            for (al in albumList)
-            {
-                for (t in al.tracks)
-                {
-                    mappedData.add(
-                        SearchModel(
-                            id = t.id,
-                            name = t.name,
-                            title = "Трек",
-                            artistName = t.artistName,
-                            imagePath = t.imagePath.replace("\\", "/")
-                        )
+            for (t in trackList ) {
+                mappedData.add(
+                    SearchModel(
+                        id = t.id,
+                        name = t.name,
+                        title = "Трек",
+                        artistName = t.artistName,
+                        imagePath = t.imagePath.replace("\\", "/")
                     )
-                }
+                )
             }
 
             return mappedData

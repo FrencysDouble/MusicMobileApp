@@ -45,7 +45,8 @@ class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,Mus
         flow {
             val artistList = artistApi.getByName(name)
             val albumList = albumApi.getByName(name)
-            emit(SearchModel.map(artistList, albumList))
+            val trackList = musicApi.getByName(name)
+            emit(SearchModel.map(artistList, albumList,trackList))
         }
 
 
