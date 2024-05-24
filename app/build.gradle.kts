@@ -67,6 +67,8 @@ dependencies {
     implementation ("androidx.compose.material:material-icons-extended:")
     implementation ("androidx.navigation:navigation-compose:2.8.0-alpha08")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    implementation ("com.github.bumptech.glide:glide:4.12.0")
+    kapt ("com.github.bumptech.glide:compiler:4.12.0")
 
     // Network
     implementation ("com.squareup.okhttp3:okhttp:4.9.1")

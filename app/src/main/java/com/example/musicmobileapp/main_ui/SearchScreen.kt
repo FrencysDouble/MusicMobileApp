@@ -1,6 +1,7 @@
 package com.example.musicmobileapp.main_ui
 
 import android.annotation.SuppressLint
+import android.widget.ImageView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,12 +32,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.musicmobileapp.R
 import com.example.musicmobileapp.controllers.SearchScreenController
 import com.example.musicmobileapp.main_ui.navigation.BottomNavigationBar
@@ -195,6 +202,7 @@ fun MainList(searchList: List<SearchModel>?)
 
 }
 
+
 @Composable
 fun MainListItem(item: SearchModel)
 {
@@ -203,12 +211,12 @@ fun MainListItem(item: SearchModel)
         Modifier
             .fillMaxWidth()
             .height(50.dp)) {
-        Image(painter = painterResource(id = R.drawable.photo), contentDescription = "",
-            Modifier
-                .height(50.dp)
-                .width(50.dp)
-                .clip(RoundedCornerShape(128.dp)))
-
+        loadImage(
+            url = item.imageUrl,
+            modifier = Modifier
+                .size(50.dp)
+                .clip(RoundedCornerShape(128.dp))
+        )
         Column(
             Modifier
                 .wrapContentSize()
@@ -221,4 +229,17 @@ fun MainListItem(item: SearchModel)
     }
 
 }
-
+@Composable
+fun loadImage(url: String, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    AndroidView(
+        modifier = modifier,
+        factory = { ImageView(context) },
+        update = { imageView ->
+            Glide.with(context)
+                .load(url)
+                .apply(RequestOptions().placeholder(R.drawable.spinner).error(R.drawable.baseline_error_outline_24))
+                .into(imageView)
+        }
+    )
+}

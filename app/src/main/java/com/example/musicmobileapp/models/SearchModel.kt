@@ -1,6 +1,8 @@
 package com.example.musicmobileapp.models
 
 import android.util.Log
+import com.example.musicmobileapp.network.api.ApiRoutes.BASE_FILE_URL
+import com.example.musicmobileapp.network.api.ApiRoutes.BASE_URL
 import retrofit2.Response
 
 data class SearchModel(
@@ -12,7 +14,11 @@ data class SearchModel(
     val imagePath : String
 
 )
+
 {
+    val imageUrl: String
+        get() = "$BASE_FILE_URL/getIMG?path=$imagePath"
+
     companion object
     {
         fun map(arl: Response<List<ArtistModel>>, all: Response<List<AlbumModel>>): List<SearchModel>
@@ -28,7 +34,7 @@ data class SearchModel(
                         name = am.name,
                         title = "Исполнитель",
                         artistName = am.name,
-                        imagePath = am.imagePath
+                        imagePath = am.imagePath.replace("\\", "/")
                     )
                 )
 
@@ -42,7 +48,7 @@ data class SearchModel(
                         name = al.name,
                         title = "Альбом",
                         artistName = al.artistName,
-                        imagePath = al.imagePath
+                        imagePath = al.imagePath.replace("\\", "/")
                     )
                 )
             }
@@ -59,7 +65,7 @@ data class SearchModel(
                             name = t.name,
                             title = "Трек",
                             artistName = t.artistName,
-                            imagePath = t.imagePath
+                            imagePath = t.imagePath.replace("\\", "/")
                         )
                     )
                 }

@@ -43,7 +43,7 @@ class MusicPlayerController(
             try {
                 val inputStream = withContext(Dispatchers.IO)
                 {
-                    musicApiInterface.streamMusic(2)
+                    musicApiInterface.streamMusic(1)
                 }
                 println(inputStream)
                 _musicData.postValue(Resource.Success(inputStream))
