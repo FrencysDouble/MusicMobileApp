@@ -20,9 +20,11 @@ object ApiRoutes {
     // Artist API
 
     const val ARTISTGETNAME = "artist/getByName"
+    const val ARTISTGETBYID = "artist/getById/{id}"
 
     // Album API
 
     const val ALBUMGETNAME = "album/getByName"
+    const val ALBUMGETBYID = "album/getById/{id}"
 
 }

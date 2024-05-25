@@ -5,6 +5,7 @@ import android.widget.ImageView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +37,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -46,7 +46,9 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.musicmobileapp.R
 import com.example.musicmobileapp.controllers.SearchScreenController
 import com.example.musicmobileapp.main_ui.navigation.BottomNavigationBar
-import com.example.musicmobileapp.models.SearchModel
+import com.example.musicmobileapp.main_ui.navigation.Routes
+import com.example.musicmobileapp.models.screens.SearchScreenModel
+import com.example.musicmobileapp.models.Title
 import com.example.musicmobileapp.ui.theme.mainBackground
 import com.example.musicmobileapp.ui.theme.mainBackgroundAccent
 import com.example.musicmobileapp.ui.theme.textSecondary
@@ -64,7 +66,7 @@ fun SearchScreen(navController: NavHostController, controller: SearchScreenContr
 
 
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = { BottomNavigationBar(navController = navController) }) {
-        Screen(searchList,controller)
+        Screen(searchList,controller,navController)
     }
 }
 
@@ -72,7 +74,11 @@ fun SearchScreen(navController: NavHostController, controller: SearchScreenContr
 
 
 @Composable
-fun Screen(searchList: List<SearchModel>?, controller: SearchScreenController)
+fun Screen(
+    searchList: List<SearchScreenModel>?,
+    controller: SearchScreenController,
+    navController: NavHostController
+)
 {
     val isSearchBarActive by controller.isNotActive
     Column(
@@ -85,7 +91,7 @@ fun Screen(searchList: List<SearchModel>?, controller: SearchScreenController)
         SearchField(controller)
         when(isSearchBarActive)
         {
-            true -> MainList(searchList = searchList)
+            true -> MainList(searchList = searchList,navController)
             false -> HistoryList()
         }
     }
@@ -187,7 +193,7 @@ fun HistoryListItem()
 
 
 @Composable
-fun MainList(searchList: List<SearchModel>?)
+fun MainList(searchList: List<SearchScreenModel>?, navController: NavHostController)
 {
     LazyColumn(modifier = Modifier
         .fillMaxSize()
@@ -195,7 +201,7 @@ fun MainList(searchList: List<SearchModel>?)
         verticalArrangement = Arrangement.spacedBy(8.dp))
     {
         items(searchList ?: emptyList()){item ->
-            MainListItem(item)
+            MainListItem(item,navController)
         }
 
     }
@@ -204,13 +210,22 @@ fun MainList(searchList: List<SearchModel>?)
 
 
 @Composable
-fun MainListItem(item: SearchModel)
+fun MainListItem(item: SearchScreenModel, navController: NavHostController)
 {
 
     Row(
         Modifier
             .fillMaxWidth()
-            .height(50.dp)) {
+            .height(50.dp)
+            .clickable {
+                when (item.titleID) {
+                    Title.ARTISTIDTITLE -> TODO("Not yet implemented")
+                    Title.ALBUMIDTITLE -> navController.navigate("${Routes.AlbumScreen.route}/${item.id}")
+                    Title.TRACKIDTITLE -> TODO("Not yet implemented")
+                }
+            }
+    )
+                {
         loadImage(
             url = item.imageUrl,
             modifier = Modifier

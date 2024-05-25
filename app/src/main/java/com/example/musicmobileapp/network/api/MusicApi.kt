@@ -1,8 +1,6 @@
 package com.example.musicmobileapp.network.api
 
-import com.example.musicmobileapp.models.ArtistModel
-import com.example.musicmobileapp.models.TrackModel
-import com.example.musicmobileapp.models.UserModel
+import com.example.musicmobileapp.models.dto.TrackModel
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit

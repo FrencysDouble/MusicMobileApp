@@ -1,15 +1,20 @@
-package com.example.musicmobileapp.models
+package com.example.musicmobileapp.models.screens
 
+import com.example.musicmobileapp.models.dto.ArtistModel
+import com.example.musicmobileapp.models.Title
+import com.example.musicmobileapp.models.dto.TrackModel
+import com.example.musicmobileapp.models.dto.AlbumModel
 import com.example.musicmobileapp.network.api.ApiRoutes.BASE_FILE_URL
 import retrofit2.Response
 
-data class SearchModel(
+data class SearchScreenModel(
 
-    val id : Int,
-    val name : String,
-    val title : String,
-    val artistName : String,
-    val imagePath : String
+    val id: Int,
+    val name: String,
+    val title: String,
+    val titleID: Long,
+    val artistName: String,
+    val imagePath: String
 
 )
 
@@ -23,19 +28,20 @@ data class SearchModel(
             arl: Response<List<ArtistModel>>,
             all: Response<List<AlbumModel>>,
             tll: Response<List<TrackModel>>
-        ): List<SearchModel>
+        ): List<SearchScreenModel>
         {
             val artistList = arl.body() ?: emptyList()
             val albumList = all.body() ?: emptyList()
             val trackList = tll.body() ?: emptyList()
-            val mappedData = emptyList<SearchModel>().toMutableList()
+            val mappedData = emptyList<SearchScreenModel>().toMutableList()
 
             for (am in artistList) {
                 mappedData.add(
-                    SearchModel(
+                    SearchScreenModel(
                         id = am.id,
                         name = am.name,
-                        title = "Исполнитель",
+                        title = Title.ARTIST,
+                        titleID = Title.ARTISTIDTITLE,
                         artistName = am.name,
                         imagePath = am.imagePath.replace("\\", "/")
                     )
@@ -46,10 +52,11 @@ data class SearchModel(
             for (al in albumList)
             {
                 mappedData.add(
-                    SearchModel(
+                    SearchScreenModel(
                         id = al.id,
                         name = al.name,
-                        title = "Альбом",
+                        title = Title.ALBUM,
+                        titleID = Title.ALBUMIDTITLE,
                         artistName = al.artistName,
                         imagePath = al.imagePath.replace("\\", "/")
                     )
@@ -58,10 +65,11 @@ data class SearchModel(
 
             for (t in trackList ) {
                 mappedData.add(
-                    SearchModel(
+                    SearchScreenModel(
                         id = t.id,
                         name = t.name,
-                        title = "Трек",
+                        title = Title.TRACK,
+                        titleID = Title.TRACKIDTITLE,
                         artistName = t.artistName,
                         imagePath = t.imagePath.replace("\\", "/")
                     )

@@ -2,9 +2,11 @@ package com.example.musicmobileapp.di
 
 import android.content.Context
 import androidx.media3.exoplayer.ExoPlayer
+import com.example.musicmobileapp.controllers.AlbumController
 import com.example.musicmobileapp.controllers.AuthController
 import com.example.musicmobileapp.controllers.MusicPlayerController
 import com.example.musicmobileapp.controllers.SearchScreenController
+import com.example.musicmobileapp.network.AlbumApiInterface
 import com.example.musicmobileapp.network.AuthApiInterface
 import com.example.musicmobileapp.network.MainAPIController
 import com.example.musicmobileapp.network.MusicApiInterface
@@ -36,6 +38,9 @@ interface ControllersModule {
 
     @Provide(cache = Provide.CacheType.Soft)
     fun provideSearchController(searchApiInterface: SearchApiInterface = mApiController()) : SearchScreenController
+
+    @Provide(cache = Provide.CacheType.Soft)
+    fun provideAlbumController(albumApiInterface: AlbumApiInterface = mApiController()) : AlbumController
 
 
 

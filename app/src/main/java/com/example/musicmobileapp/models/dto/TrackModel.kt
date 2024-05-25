@@ -1,4 +1,4 @@
-package com.example.musicmobileapp.models
+package com.example.musicmobileapp.models.dto
 
 import com.squareup.moshi.Json
 

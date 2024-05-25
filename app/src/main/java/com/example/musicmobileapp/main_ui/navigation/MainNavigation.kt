@@ -2,10 +2,13 @@ package com.example.musicmobileapp.main_ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.musicmobileapp.di.ControllersModule
+import com.example.musicmobileapp.main_ui.AlbumScreen
 import com.example.musicmobileapp.main_ui.AuthScreen
 import com.example.musicmobileapp.main_ui.HomeScreen
 import com.example.musicmobileapp.main_ui.LoadingScreen
@@ -62,6 +65,12 @@ fun MainNavigation(controllersModule: ControllersModule) {
         composable(Routes.MusicPlayerScreen.route)
         {
             MusicPlayerScreen(navController,controllersModule.provideMusicPlayerController(),controllersModule.provideExoPLayer())
+        }
+        composable(route = Routes.AlbumScreen.route + "/{albumId}",
+            arguments = listOf(navArgument("albumId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val albumId = backStackEntry.arguments?.getString("albumId")
+            AlbumScreen(navController, albumId ?: "",controllersModule.provideAlbumController())
         }
     }
 }

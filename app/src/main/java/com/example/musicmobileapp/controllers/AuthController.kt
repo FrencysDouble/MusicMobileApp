@@ -1,10 +1,8 @@
 package com.example.musicmobileapp.controllers
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.musicmobileapp.models.UserModel
+import com.example.musicmobileapp.models.dto.UserModel
 import com.example.musicmobileapp.network.AuthApiInterface
-import com.example.musicmobileapp.network.MainAPIController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -12,8 +10,6 @@ import kotlinx.coroutines.withContext
 
 import okhttp3.ResponseBody
 import retrofit2.Response
-import javax.inject.Inject
-import javax.inject.Singleton
 
 class AuthController(private val authApiInterface: AuthApiInterface) : ViewModel()
 {

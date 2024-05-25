@@ -1,8 +1,9 @@
 package com.example.musicmobileapp.network
 
 import com.example.musicmobileapp.di.ApiModule
-import com.example.musicmobileapp.models.SearchModel
-import com.example.musicmobileapp.models.UserModel
+import com.example.musicmobileapp.models.screens.SearchScreenModel
+import com.example.musicmobileapp.models.dto.UserModel
+import com.example.musicmobileapp.models.screens.AlbumScreenModel
 import com.example.musicmobileapp.network.api.AlbumApi
 import com.example.musicmobileapp.network.api.ArtistApi
 import com.example.musicmobileapp.network.api.AuthApi
@@ -14,7 +15,7 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 import java.io.InputStream
 
-class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,MusicApiInterface,SearchApiInterface{
+class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,MusicApiInterface,SearchApiInterface,AlbumApiInterface{
 
     private val authApi : AuthApi
         get() = apiModule.provideAuthApi()
@@ -41,12 +42,19 @@ class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,Mus
         return musicApi.streamMusic(id)
     }
 
-    override suspend fun searchData(name: String): Flow<List<SearchModel>> =
+    override suspend fun searchData(name: String): Flow<List<SearchScreenModel>> =
         flow {
             val artistList = artistApi.getByName(name)
             val albumList = albumApi.getByName(name)
             val trackList = musicApi.getByName(name)
-            emit(SearchModel.map(artistList, albumList,trackList))
+            emit(SearchScreenModel.map(artistList, albumList,trackList))
+        }
+
+    override suspend fun getAlbum(id: Long): Flow<AlbumScreenModel> =
+        flow {
+            val album = albumApi.getById(id)
+            val artist = artistApi.getById(album.body()?.artistId?.toLong() ?: 0)
+            emit(AlbumScreenModel.map(album,artist))
         }
 
 
@@ -67,5 +75,10 @@ interface MusicApiInterface
 
 interface SearchApiInterface
 {
-    suspend fun searchData(name : String): Flow<List<SearchModel>>
+    suspend fun searchData(name : String): Flow<List<SearchScreenModel>>
+}
+
+interface AlbumApiInterface
+{
+    suspend fun getAlbum(id: Long) : Flow<AlbumScreenModel>
 }

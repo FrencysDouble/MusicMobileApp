@@ -1,4 +1,6 @@
-package com.example.musicmobileapp.models
+package com.example.musicmobileapp.models.dto
+
+import retrofit2.Response
 
 data class AlbumModel(
     val id: Int,
@@ -9,5 +11,6 @@ data class AlbumModel(
     val trackNames: List<String>,
     val tracks: List<TrackModel>
 )
+
 
 

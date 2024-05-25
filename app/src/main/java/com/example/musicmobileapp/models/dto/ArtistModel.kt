@@ -1,4 +1,4 @@
-package com.example.musicmobileapp.models
+package com.example.musicmobileapp.models.dto
 
 data class ArtistModel(
     val id: Int,
