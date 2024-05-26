@@ -54,7 +54,7 @@ fun AlbumScreen(
                 .padding(start = 24.dp, end = 24.dp, top = 16.dp)) {
             when {
                 albumData == null -> {
-                    Text("Загрузка...", Modifier.padding(16.dp))
+                    LoadingScreen.Loading()
                 }
 
                 albumData!!.tracks.isEmpty() -> {
@@ -77,7 +77,9 @@ fun AlbumScreen(
 fun AlbumImage(albumImageUrl: String)
 {
     ImageLoading.loadImage(url = albumImageUrl,
-        Modifier.fillMaxWidth().height(327.dp),
+        Modifier
+            .fillMaxWidth()
+            .height(327.dp),
         context = LocalContext.current)
 }
 
@@ -96,7 +98,9 @@ fun AlbumTitle(albumData: AlbumScreenModel)
                 .fillMaxWidth()
                 .padding(top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             ImageLoading.loadImage(albumData.artistImageUrl,
-                Modifier.size(24.dp).clip(RoundedCornerShape(128.dp)),
+                Modifier
+                    .size(24.dp)
+                    .clip(RoundedCornerShape(128.dp)),
                 context = LocalContext.current
             )
             Text(text = albumData.artistName,Modifier.padding(start = 12.dp))

@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -57,17 +59,23 @@ import com.example.musicmobileapp.ui.theme.textSecondary
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-
-
-fun SearchScreen(navController: NavHostController, controller: SearchScreenController)
-{
+fun SearchScreen(navController: NavHostController, controller: SearchScreenController) {
+    val isDialogShow by remember { mutableStateOf(controller.isDialogShow) }
     val searchList by controller.liveSearchData.observeAsState()
 
+    if(isDialogShow.value)
+    {
+        MoreDialog.BottomSheet {
 
-
-    Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = { BottomNavigationBar(navController = navController) }) {
-        Screen(searchList,controller,navController)
+        }
     }
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = { BottomNavigationBar(navController = navController) }) {
+        Screen(searchList, controller, navController, isDialogShow.value)
+    }
+
 }
 
 
@@ -77,7 +85,8 @@ fun SearchScreen(navController: NavHostController, controller: SearchScreenContr
 fun Screen(
     searchList: List<SearchScreenModel>?,
     controller: SearchScreenController,
-    navController: NavHostController
+    navController: NavHostController,
+    isDialogShow: Boolean
 )
 {
     val isSearchBarActive by controller.isNotActive
@@ -87,11 +96,9 @@ fun Screen(
             .background(mainBackground)
             .padding(start = 24.dp, end = 24.dp)) {
 
-
         SearchField(controller)
-        when(isSearchBarActive)
-        {
-            true -> MainList(searchList = searchList,navController)
+        when (isSearchBarActive) {
+            true -> MainList(searchList = searchList, navController, controller)
             false -> HistoryList()
         }
     }
@@ -143,6 +150,7 @@ fun SearchField(controller: SearchScreenController)
 
 
 @Composable
+@Preview
 fun HistoryList()
 {
     val historyText = stringResource(id = R.string.screen_search_history)
@@ -165,6 +173,7 @@ fun HistoryList()
 
 
 @Composable
+@Preview
 fun HistoryListItem()
 {
 
@@ -173,8 +182,7 @@ fun HistoryListItem()
 
     Column(
         Modifier
-            .width(100.dp)
-            .height(144.dp)
+            .wrapContentSize()
             .background(mainBackground)) {
         Image(painter = painterResource(id = imageId), contentDescription = "",
             modifier = Modifier
@@ -184,7 +192,7 @@ fun HistoryListItem()
         Column(
             Modifier
                 .padding(top = 8.dp)
-                .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                .width(100.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = artistName)
             Text(text = stringResource(id = R.string.screen_search_artist), fontSize = 12.sp, color = textSecondary)
         }
@@ -193,7 +201,7 @@ fun HistoryListItem()
 
 
 @Composable
-fun MainList(searchList: List<SearchScreenModel>?, navController: NavHostController)
+fun MainList(searchList: List<SearchScreenModel>?, navController: NavHostController,controller: SearchScreenController)
 {
     LazyColumn(modifier = Modifier
         .fillMaxSize()
@@ -201,7 +209,7 @@ fun MainList(searchList: List<SearchScreenModel>?, navController: NavHostControl
         verticalArrangement = Arrangement.spacedBy(8.dp))
     {
         items(searchList ?: emptyList()){item ->
-            MainListItem(item,navController)
+            MainListItem(item,navController,controller)
         }
 
     }
@@ -210,9 +218,12 @@ fun MainList(searchList: List<SearchScreenModel>?, navController: NavHostControl
 
 
 @Composable
-fun MainListItem(item: SearchScreenModel, navController: NavHostController)
+fun MainListItem(
+    item: SearchScreenModel,
+    navController: NavHostController,
+    controller: SearchScreenController
+)
 {
-
     Row(
         Modifier
             .fillMaxWidth()
@@ -223,7 +234,8 @@ fun MainListItem(item: SearchScreenModel, navController: NavHostController)
                     Title.ALBUMIDTITLE -> navController.navigate("${Routes.AlbumScreen.route}/${item.id}")
                     Title.TRACKIDTITLE -> TODO("Not yet implemented")
                 }
-            }
+            },
+        verticalAlignment = Alignment.CenterVertically
     )
                 {
         loadImage(
@@ -240,7 +252,20 @@ fun MainListItem(item: SearchScreenModel, navController: NavHostController)
             Text(text = item.title,color = textSecondary, fontSize = 12.sp)
 
         }
-
+                    if (item.titleID == Title.TRACKIDTITLE) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.CenterEnd
+                        )
+                        {
+                            IconButton(onClick = {controller.dialogActive()}) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.al_more),
+                                    contentDescription = ""
+                                )
+                            }
+                        }
+                    }
     }
 
 }

@@ -19,6 +19,7 @@ class SearchScreenController(
     private val cScope = CoroutineScope(Dispatchers.IO)
     val isNotActive : MutableState<Boolean> = mutableStateOf(false)
     val liveSearchData: MutableLiveData<List<SearchScreenModel>> = MutableLiveData(emptyList())
+    val isDialogShow : MutableState<Boolean> = mutableStateOf(false)
 
     fun dataLoad(name: String)
     {
@@ -46,6 +47,17 @@ class SearchScreenController(
     fun searchBarDisable()
     {
         isNotActive.value = false
+    }
+
+
+    fun dialogActive()
+    {
+        isDialogShow.value = true
+    }
+
+    fun dialogDisable()
+    {
+        isDialogShow.value = false
     }
 
 }

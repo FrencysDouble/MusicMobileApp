@@ -7,22 +7,22 @@ object Routes {
     object NavBar {
         object Main :
             BottomNavItem(
-                "Main",
-                R.drawable.ic_home,
+                "Дом",
+                R.drawable.nav_home,
                 "main"
             )
 
         object Search :
             BottomNavItem(
-                "Search",
-                R.drawable.ic_search_24,
+                "Поиск",
+                R.drawable.nav_search,
                 "search"
             )
 
         object Home :
             BottomNavItem(
-                "Home",
-                R.drawable.baseline_list_24,
+                "Любимое",
+                R.drawable.nav_favorite,
                 "home"
             )
     }

@@ -7,4 +7,13 @@
     <string name="screen_search_artist">Исполнитель</string>
     <string name="screen_search_album">Альбом</string>
     <string name="screen_search_track">Трек</string>
+
+    <string name="dialog_add_playlist">Добавить в плейлист</string>
+    <string name="dialog_add_query">Добавить в очередь</string>
+    <string name="dialog_go_album">Перейти к альбому</string>
+    <string name="dialog_go_artist">Перейти к исполнителю</string>
+
+    <string name="playlist_playlists">Плейлисты</string>
+    <string name="playlist_new">Новый плейлист</string>
+
 </resources>

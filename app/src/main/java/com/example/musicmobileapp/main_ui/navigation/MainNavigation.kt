@@ -45,7 +45,7 @@ fun MainNavigation(controllersModule: ControllersModule) {
 
     NavHost(navController, startDestination = Routes.Loading.route) {
         composable(Routes.Loading.route) {
-            LoadingScreen(navController)
+            LoadingScreen.Loading()
         }
         composable(Routes.Identification.Reg.route) {
             RegScreen(navController,controllersModule.provideAuthController())
