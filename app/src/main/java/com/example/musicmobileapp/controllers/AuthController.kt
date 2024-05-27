@@ -1,36 +1,40 @@
 package com.example.musicmobileapp.controllers
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.musicmobileapp.models.dto.UserModel
 import com.example.musicmobileapp.network.AuthApiInterface
+import com.example.musicmobileapp.security.UserSecurityManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 import okhttp3.ResponseBody
 import retrofit2.Response
 
-class AuthController(private val authApiInterface: AuthApiInterface) : ViewModel()
+class AuthController(
+    private val authApiInterface: AuthApiInterface,
+    private val userSecurityManager: UserSecurityManager
+)
+    : ViewModel()
 {
     private val cScope = CoroutineScope(Dispatchers.IO)
 
-    private  var data : Response<ResponseBody>? = null
 
-    fun test()
+    fun auth()
     {
-        val user = UserModel("zgleb222asddssad3@bk.ru","Kabanasda","11111111")
+        val user = UserModel("zgleb@bk.ru","Glebas","24092002")
         cScope.launch {
-            try {
-                data = authApiInterface.reg(user)
-            }
-            catch (e: Exception)
-            {
-                e.printStackTrace()
-            }
-            withContext(Dispatchers.IO)
-            {
-                println(data?.raw().toString())
+            authApiInterface.auth(user).collect() { response ->
+                withContext(Dispatchers.Main)
+                {
+                    userSecurityManager.saveUserSession(
+                        response.body()?.id ?: "",
+                        response.body()?.uuid ?: ""
+                    )
+                }
             }
         }
     }

@@ -37,6 +37,8 @@ object Routes {
 
     object AlbumScreen : Screen("album/{albumId}")
     object MusicPlayerScreen : Screen("musicPlayerScreen")
+
+    object PlaylistCreationScreen : Screen("PlaylistCreationScreen")
 }
 
 

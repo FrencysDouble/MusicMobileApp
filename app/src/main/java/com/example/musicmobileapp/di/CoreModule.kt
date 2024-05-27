@@ -13,6 +13,8 @@ import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.upstream.DefaultAllocator
 import androidx.media3.extractor.ts.TsExtractor.Mode
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.example.musicmobileapp.controllers.AuthController
 import com.example.musicmobileapp.controllers.MusicPlayerController
 import com.example.musicmobileapp.network.AuthApiInterface
@@ -22,6 +24,7 @@ import com.example.musicmobileapp.network.api.ApiRoutes
 import com.example.musicmobileapp.network.api.AuthApi
 import com.example.musicmobileapp.network.api.MusicApi
 import com.example.musicmobileapp.network.service.MusicPlayerService
+import com.example.musicmobileapp.security.UserSecurityManager
 import com.github.klee0kai.stone.annotations.component.Component
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
@@ -56,7 +59,6 @@ open class CoreModule () {
     @Provide
     open fun provideExoPlayer(context: Context) : ExoPlayer
     {
-
         val customAllocator = DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE * 2)
         val loadControl = DefaultLoadControl.Builder()
             .setAllocator(customAllocator)
@@ -66,6 +68,22 @@ open class CoreModule () {
 
         return ExoPlayer.Builder(context)
             .setLoadControl(loadControl).build()
+    }
+
+    @Provide
+    open fun provideUserSecurityManager(context: Context) : UserSecurityManager
+    {
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build()
+
+        val sharedPreferences = EncryptedSharedPreferences.create(
+            context,
+            "secure_prefs",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+        return UserSecurityManager(sharedPreferences)
     }
 
 }

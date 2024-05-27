@@ -1,6 +1,7 @@
 package com.example.musicmobileapp.network
 
 import com.example.musicmobileapp.di.ApiModule
+import com.example.musicmobileapp.models.dto.UserDTO
 import com.example.musicmobileapp.models.screens.SearchScreenModel
 import com.example.musicmobileapp.models.dto.UserModel
 import com.example.musicmobileapp.models.screens.AlbumScreenModel
@@ -30,13 +31,15 @@ class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,Mus
         get() = apiModule.provideAlbumApi()
 
 
-    override suspend fun auth(userModel: UserModel): Response<ResponseBody> {
-        return authApi.auth(userModel)
-    }
+    override suspend fun auth(userModel: UserModel): Flow<Response<UserDTO>> =
+        flow {
+            emit(authApi.auth(userModel))
+        }
 
-    override suspend fun reg(userModel: UserModel): Response<ResponseBody> {
-        return authApi.reg(userModel)
-    }
+    override suspend fun reg(userModel: UserModel): Flow<Response<UserDTO>> =
+        flow {
+            emit(authApi.reg(userModel))
+        }
 
     override suspend fun streamMusic(id: Long): InputStream {
         return musicApi.streamMusic(id)
@@ -63,9 +66,9 @@ class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,Mus
 
 interface AuthApiInterface
 {
-    suspend fun auth(userModel: UserModel): Response<ResponseBody>
+    suspend fun auth(userModel: UserModel): Flow<Response<UserDTO>>
 
-    suspend fun reg(userModel: UserModel): Response<ResponseBody>
+    suspend fun reg(userModel: UserModel): Flow<Response<UserDTO>>
 }
 
 interface MusicApiInterface

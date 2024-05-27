@@ -28,6 +28,7 @@ fun AuthScreen(navController: NavHostController, controller: AuthController)
             Button(onClick = { navController.navigate(Routes.NavBar.Main.route) })
             {
                 Text(text = "Submit")
+                controller.auth()
             }
             Button(onClick = { navController.navigate(Routes.Identification.Reg.route) }) {
                 Text(text = "To Registration")

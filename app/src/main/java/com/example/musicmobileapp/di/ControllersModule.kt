@@ -12,6 +12,7 @@ import com.example.musicmobileapp.network.MainAPIController
 import com.example.musicmobileapp.network.MusicApiInterface
 import com.example.musicmobileapp.network.SearchApiInterface
 import com.example.musicmobileapp.network.service.MusicPlayerService
+import com.example.musicmobileapp.security.UserSecurityManager
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.annotations.module.Provide
@@ -21,14 +22,15 @@ import javax.inject.Inject
 @Module()
 interface ControllersModule {
 
-
     @BindInstance
     fun mApiController(ma : MainAPIController? = null) : MainAPIController
     @BindInstance
     fun provideExoPLayer( exoPlayer: ExoPlayer? = null): ExoPlayer
+    @BindInstance
+    fun provideSecurityManager( userSecurityManager: UserSecurityManager? = null) : UserSecurityManager
 
     @Provide(cache = Provide.CacheType.Soft)
-    fun provideAuthController(authApiInterface : AuthApiInterface = mApiController()): AuthController
+    fun provideAuthController(authApiInterface : AuthApiInterface = mApiController(), userSecurityManager: UserSecurityManager = provideSecurityManager()): AuthController
 
     @Provide(cache = Provide.CacheType.Soft)
     fun provideMusicPlayerController(musicApiInterface: MusicApiInterface = mApiController(), musicPlayerService: MusicPlayerService = this.provideMusicPlayerService()): MusicPlayerController
@@ -41,6 +43,7 @@ interface ControllersModule {
 
     @Provide(cache = Provide.CacheType.Soft)
     fun provideAlbumController(albumApiInterface: AlbumApiInterface = mApiController()) : AlbumController
+
 
 
 

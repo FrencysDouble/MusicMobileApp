@@ -14,6 +14,7 @@ import com.example.musicmobileapp.main_ui.HomeScreen
 import com.example.musicmobileapp.main_ui.LoadingScreen
 import com.example.musicmobileapp.main_ui.MainScreen
 import com.example.musicmobileapp.main_ui.MusicPlayerScreen
+import com.example.musicmobileapp.main_ui.PlaylistCreationScreen
 import com.example.musicmobileapp.main_ui.RegScreen
 import com.example.musicmobileapp.main_ui.SearchScreen
 import kotlinx.coroutines.delay
@@ -71,6 +72,10 @@ fun MainNavigation(controllersModule: ControllersModule) {
         ) { backStackEntry ->
             val albumId = backStackEntry.arguments?.getString("albumId")
             AlbumScreen(navController, albumId ?: "",controllersModule.provideAlbumController())
+        }
+        composable(route = Routes.PlaylistCreationScreen.route)
+        {
+            PlaylistCreationScreen()
         }
     }
 }

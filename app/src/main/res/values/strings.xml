@@ -16,4 +16,11 @@
     <string name="playlist_playlists">Плейлисты</string>
     <string name="playlist_new">Новый плейлист</string>
 
+    <string name="playlist_creation_title1">Введите название</string>
+    <string name="playlist_creation_title2">плейлиста</string>
+    <string name="playlist_creation_field_hint">Название плейлиста</string>
+    <string name="playlist_creation_btn_cancel">Отмена</string>
+    <string name="playlist_creation_btn_submit">Создать</string>
+
+
 </resources>
