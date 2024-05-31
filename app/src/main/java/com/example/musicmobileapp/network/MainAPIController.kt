@@ -1,14 +1,17 @@
 package com.example.musicmobileapp.network
 
 import com.example.musicmobileapp.di.ApiModule
+import com.example.musicmobileapp.models.dto.PlaylistDTO
 import com.example.musicmobileapp.models.dto.UserDTO
 import com.example.musicmobileapp.models.screens.SearchScreenModel
 import com.example.musicmobileapp.models.dto.UserModel
 import com.example.musicmobileapp.models.screens.AlbumScreenModel
+import com.example.musicmobileapp.models.screens.PlaylistScreenModel
 import com.example.musicmobileapp.network.api.AlbumApi
 import com.example.musicmobileapp.network.api.ArtistApi
 import com.example.musicmobileapp.network.api.AuthApi
 import com.example.musicmobileapp.network.api.MusicApi
+import com.example.musicmobileapp.network.api.PlaylistApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -16,7 +19,7 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 import java.io.InputStream
 
-class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,MusicApiInterface,SearchApiInterface,AlbumApiInterface{
+class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,MusicApiInterface,SearchApiInterface,AlbumApiInterface,PlaylistApiInterface{
 
     private val authApi : AuthApi
         get() = apiModule.provideAuthApi()
@@ -29,6 +32,9 @@ class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,Mus
 
     private val albumApi : AlbumApi
         get() = apiModule.provideAlbumApi()
+
+    private val playlistApi : PlaylistApi
+        get() = apiModule.providePlaylistApi()
 
 
     override suspend fun auth(userModel: UserModel): Flow<Response<UserDTO>> =
@@ -60,7 +66,29 @@ class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,Mus
             emit(AlbumScreenModel.map(album,artist))
         }
 
+    override suspend fun createPlaylist(playlistDTO: PlaylistDTO): Flow<ResponseBody> =
+        flow {
+            val response = playlistApi.createPlaylist(playlistDTO)
+            emit(response)
+        }
 
+    override suspend fun addTrackPlaylist(id: Long, trackId: Long) : Flow<ResponseBody> =
+        flow {
+            val response = playlistApi.addTrackPlaylist(id,trackId)
+            emit(response)
+        }
+
+    override suspend fun getAllByCreator(id: Long): Flow<List<PlaylistScreenModel>> =
+    flow {
+        val playlistList = playlistApi.getAllCreatorId(id)
+        emit(PlaylistScreenModel.map(playlistList.body()))
+    }
+
+    override suspend fun getByPlaylistId(id: Long): Flow<PlaylistScreenModel> =
+    flow {
+        val playlist = playlistApi.getByPlaylistId(id)
+        emit(PlaylistScreenModel.mapOne(playlist.body())!!)
+    }
 }
 
 
@@ -84,4 +112,15 @@ interface SearchApiInterface
 interface AlbumApiInterface
 {
     suspend fun getAlbum(id: Long) : Flow<AlbumScreenModel>
+}
+
+interface PlaylistApiInterface
+{
+    suspend fun createPlaylist(playlistDTO: PlaylistDTO) : Flow<ResponseBody>
+
+    suspend fun addTrackPlaylist(id: Long,trackId : Long) : Flow<ResponseBody>
+
+    suspend fun getAllByCreator(id: Long) : Flow<List<PlaylistScreenModel>>
+
+    suspend fun getByPlaylistId(id : Long) : Flow<PlaylistScreenModel>
 }

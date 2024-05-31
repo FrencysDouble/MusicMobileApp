@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,10 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.musicmobileapp.R
+import com.example.musicmobileapp.controllers.PlaylistController
+import com.example.musicmobileapp.main_ui.navigation.Routes
 import com.example.musicmobileapp.ui.theme.mainBackground
 import com.example.musicmobileapp.ui.theme.mainBackgroundAccent
 import com.example.musicmobileapp.ui.theme.mainPrimary
@@ -39,9 +41,14 @@ import com.example.musicmobileapp.ui.theme.textSecondary
 
 
 @Composable
-@Preview
-fun PlaylistCreationScreen()
+fun PlaylistCreationScreen(
+    navController: NavHostController,
+    controller: PlaylistController
+)
 {
+
+    val searchQuery = remember { mutableStateOf(TextFieldValue()) }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -61,8 +68,8 @@ fun PlaylistCreationScreen()
             Text(stringResource(id = R.string.playlist_creation_title1), fontSize = 24.sp)
             Text(stringResource(id = R.string.playlist_creation_title2), fontSize = 24.sp)
 
-            PlaylistNameField()
-            CreationButtons()
+            PlaylistNameField(searchQuery)
+            CreationButtons(controller,searchQuery,navController)
         }
 
     }
@@ -71,9 +78,8 @@ fun PlaylistCreationScreen()
 
 
 @Composable
-fun PlaylistNameField()
+fun PlaylistNameField(searchQuery: MutableState<TextFieldValue>)
 {
-    val searchQuery = remember { mutableStateOf(TextFieldValue()) }
     Box(modifier = Modifier
         .wrapContentSize()
         .padding(top = 24.dp),contentAlignment = Alignment.Center)
@@ -106,15 +112,18 @@ fun PlaylistNameField()
 }
 
 @Composable
-@Preview
-fun CreationButtons()
+fun CreationButtons(
+    controller: PlaylistController,
+    searchQuery: MutableState<TextFieldValue>,
+    navController: NavHostController
+)
 {
     Row (
         Modifier
             .fillMaxWidth()
             .padding(top = 50.dp), horizontalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterHorizontally)){
 
-        Button(onClick = { /*TODO*/ }, colors = ButtonColors(
+        Button(onClick = { navController.navigate(Routes.NavBar.Home.route) }, colors = ButtonColors(
             containerColor = mainBackground,
             contentColor = textPrimary,
             disabledContentColor =textPrimary,
@@ -125,7 +134,10 @@ fun CreationButtons()
             Text(text = stringResource(id = R.string.playlist_creation_btn_cancel))
         }
 
-        Button(onClick = { /*TODO*/ }, colors = ButtonColors(
+        Button(onClick = {
+            controller.createPlaylist(searchQuery.value.text)
+            navController.navigate(Routes.NavBar.Home.route) },
+            colors = ButtonColors(
             containerColor = mainPrimary,
             contentColor = mainBackground,
             disabledContentColor = mainBackground,

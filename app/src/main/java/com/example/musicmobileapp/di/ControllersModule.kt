@@ -5,11 +5,13 @@ import androidx.media3.exoplayer.ExoPlayer
 import com.example.musicmobileapp.controllers.AlbumController
 import com.example.musicmobileapp.controllers.AuthController
 import com.example.musicmobileapp.controllers.MusicPlayerController
+import com.example.musicmobileapp.controllers.PlaylistController
 import com.example.musicmobileapp.controllers.SearchScreenController
 import com.example.musicmobileapp.network.AlbumApiInterface
 import com.example.musicmobileapp.network.AuthApiInterface
 import com.example.musicmobileapp.network.MainAPIController
 import com.example.musicmobileapp.network.MusicApiInterface
+import com.example.musicmobileapp.network.PlaylistApiInterface
 import com.example.musicmobileapp.network.SearchApiInterface
 import com.example.musicmobileapp.network.service.MusicPlayerService
 import com.example.musicmobileapp.security.UserSecurityManager
@@ -44,8 +46,8 @@ interface ControllersModule {
     @Provide(cache = Provide.CacheType.Soft)
     fun provideAlbumController(albumApiInterface: AlbumApiInterface = mApiController()) : AlbumController
 
-
-
+    @Provide(cache = Provide.CacheType.Soft)
+    fun providePlaylistController(playlistApiInterface: PlaylistApiInterface = mApiController(),userSecurityManager: UserSecurityManager = provideSecurityManager()) : PlaylistController
 
 }
 
