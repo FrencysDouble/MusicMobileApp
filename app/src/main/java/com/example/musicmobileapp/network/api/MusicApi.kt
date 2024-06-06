@@ -16,7 +16,7 @@ class MusicApi(private val retrofit: Retrofit) {
 
     suspend fun streamMusic(id: Long): InputStream = service.streamMusic(id).byteStream()
 
-    suspend fun getByName(name: String): Response<List<TrackModel>> = service.findByName(name)
+    suspend fun getByName(name: String): ApiResponse<List<TrackModel>> = handleApiResponse (call = {service.findByName(name)})
 
 }
 

@@ -11,9 +11,9 @@ class AlbumApi(private val retrofit: Retrofit) {
 
     private val service :AlbumApiPoints= retrofit.create(AlbumApiPoints::class.java)
 
-    suspend fun getByName(name: String): Response<List<AlbumModel>> = service.findByName(name)
+    suspend fun getByName(name: String): ApiResponse<List<AlbumModel>> = handleApiResponse(call = {service.findByName(name)})
 
-    suspend fun getById(id: Long): Response<AlbumModel> = service.findById(id)
+    suspend fun getById(id: Long): ApiResponse<AlbumModel> = handleApiResponse (call ={ service.findById(id)})
 
 }
 

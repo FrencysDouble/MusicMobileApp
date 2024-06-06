@@ -11,9 +11,9 @@ class ArtistApi(private val retrofit: Retrofit) {
 
     private val service :ArtistApiPoints= retrofit.create(ArtistApiPoints::class.java)
 
-    suspend fun getByName(name: String): Response<List<ArtistModel>> = service.findByName(name)
+    suspend fun getByName(name: String): ApiResponse<List<ArtistModel>> = handleApiResponse(call = {service.findByName(name)})
 
-    suspend fun getById(id: Long): Response<ArtistModel> = service.findById(id)
+    suspend fun getById(id: Long): ApiResponse<ArtistModel> = handleApiResponse(call ={ service.findById(id)})
 }
 
 

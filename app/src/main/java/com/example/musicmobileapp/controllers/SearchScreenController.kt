@@ -5,8 +5,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.musicmobileapp.models.screens.SearchScreenModel
 import com.example.musicmobileapp.network.SearchApiInterface
+import com.example.musicmobileapp.network.api.ApiResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,24 +18,26 @@ class SearchScreenController(
     private val searchApiInterface: SearchApiInterface
 ) : ViewModel() {
 
-    private val cScope = CoroutineScope(Dispatchers.IO)
     val isNotActive : MutableState<Boolean> = mutableStateOf(false)
     val liveSearchData: MutableLiveData<List<SearchScreenModel>> = MutableLiveData(emptyList())
     val isDialogShow : MutableState<Boolean> = mutableStateOf(false)
 
-    fun dataLoad(name: String)
-    {
-        cScope.launch {
-            searchApiInterface.searchData(name).collect() {response ->
-                withContext(Dispatchers.Main)
-                {
-                    liveSearchData.value = response
-                    response.forEachIndexed { index, innerList ->
-                        Log.d("SearchScreenController", "Inner list $index:, SeatchModel $innerList")
+    fun dataLoad(name: String) {
+        viewModelScope.launch {
+            searchApiInterface.searchData(name).collect { response ->
+                withContext(Dispatchers.Main) {
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            liveSearchData.value = response.data
+                        }
+                        is ApiResponse.Error -> {
+                            Log.e("SearchScreenController", "Error: ${response.errorMessage}")
+                        }
+                        is ApiResponse.Loading -> {
+                            Log.d("SearchScreenController", "Loading...")
+                        }
                     }
-
                 }
-
             }
         }
     }

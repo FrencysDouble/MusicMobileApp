@@ -51,6 +51,7 @@ import com.example.musicmobileapp.main_ui.navigation.BottomNavigationBar
 import com.example.musicmobileapp.main_ui.navigation.Routes
 import com.example.musicmobileapp.models.screens.SearchScreenModel
 import com.example.musicmobileapp.models.Title
+import com.example.musicmobileapp.network.api.ApiResponse
 import com.example.musicmobileapp.ui.theme.mainBackground
 import com.example.musicmobileapp.ui.theme.mainBackgroundAccent
 import com.example.musicmobileapp.ui.theme.textSecondary
@@ -73,7 +74,7 @@ fun SearchScreen(navController: NavHostController, controller: SearchScreenContr
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = { BottomNavigationBar(navController = navController) }) {
-        Screen(searchList, controller, navController, isDialogShow.value)
+        Screen(searchList!!, controller, navController, isDialogShow.value)
     }
 
 }
@@ -83,7 +84,7 @@ fun SearchScreen(navController: NavHostController, controller: SearchScreenContr
 
 @Composable
 fun Screen(
-    searchList: List<SearchScreenModel>?,
+    searchList: List<SearchScreenModel>,
     controller: SearchScreenController,
     navController: NavHostController,
     isDialogShow: Boolean
@@ -201,14 +202,14 @@ fun HistoryListItem()
 
 
 @Composable
-fun MainList(searchList: List<SearchScreenModel>?, navController: NavHostController,controller: SearchScreenController)
+fun MainList(searchList: List<SearchScreenModel>, navController: NavHostController,controller: SearchScreenController)
 {
     LazyColumn(modifier = Modifier
         .fillMaxSize()
         .padding(top = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp))
     {
-        items(searchList ?: emptyList()){item ->
+        items(searchList){ item ->
             MainListItem(item,navController,controller)
         }
 

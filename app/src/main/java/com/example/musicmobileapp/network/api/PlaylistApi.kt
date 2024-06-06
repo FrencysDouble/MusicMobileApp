@@ -15,9 +15,9 @@ class PlaylistApi(private val retrofit: Retrofit) {
 
     private val service :PlaylistApiPoints= retrofit.create(PlaylistApiPoints::class.java)
 
-    suspend fun createPlaylist(playlistDTO: PlaylistDTO): ResponseBody = service.createPlaylist(playlistDTO)
+    suspend fun createPlaylist(playlistDTO: PlaylistDTO): Response<ResponseBody> = service.createPlaylist(playlistDTO)
 
-    suspend fun addTrackPlaylist(id: Long, trackId: Long) : ResponseBody = service.addTrackPlaylist(id,trackId)
+    suspend fun addTrackPlaylist(id: Long, trackId: Long) : Response<ResponseBody> = service.addTrackPlaylist(id,trackId)
 
     suspend fun getAllCreatorId(id:Long) : Response<List<PlaylistScreenModel>> = service.getAllByCreatorId(id)
 
@@ -31,13 +31,13 @@ interface PlaylistApiPoints
     @POST(ApiRoutes.PLAYLISTPOST)
     suspend fun createPlaylist(
         @Body playlistDTO: PlaylistDTO
-    ): ResponseBody
+    ): Response<ResponseBody>
 
     @POST(ApiRoutes.PLAYLISTADDTRACK)
     suspend fun addTrackPlaylist(
         @Query("playlistId") id : Long,
         @Query("trackId") trackId : Long
-    ): ResponseBody
+    ): Response<ResponseBody>
 
     @GET(ApiRoutes.PLAYLISTGETALL)
     suspend fun getAllByCreatorId(

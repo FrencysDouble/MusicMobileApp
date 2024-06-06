@@ -16,11 +16,9 @@ data class PlaylistScreenModel(
         get() = "${ApiRoutes.BASE_FILE_URL}/getIMG?path=$image_path"
     companion object
     {
-        //TODO()
-        fun map(pll: List<PlaylistScreenModel>?) : List<PlaylistScreenModel>
+        fun map(pll: List<PlaylistScreenModel>) : List<PlaylistScreenModel>
         {
             val mappedData = emptyList<PlaylistScreenModel>().toMutableList()
-            if (pll != null) {
                 for(pl in pll) {
                     mappedData.add(
                         PlaylistScreenModel(
@@ -34,13 +32,12 @@ data class PlaylistScreenModel(
                     )
 
                 }
-            }
             return mappedData
 
         }
 
-        fun mapOne(pl: PlaylistScreenModel?): PlaylistScreenModel? {
-            return pl?.let {
+        fun mapOne(pl: PlaylistScreenModel): PlaylistScreenModel {
+            return pl.let {
                 PlaylistScreenModel(
                     id = it.id,
                     name = it.name,

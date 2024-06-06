@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.musicmobileapp.models.dto.PlaylistDTO
 import com.example.musicmobileapp.models.screens.PlaylistScreenModel
 import com.example.musicmobileapp.network.PlaylistApiInterface
+import com.example.musicmobileapp.network.api.ApiResponse
 import com.example.musicmobileapp.security.UserSecurityManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,7 +46,21 @@ class PlaylistController(
             playlistApiInterface.getAllByCreator(userId).collect { response ->
                 withContext(Dispatchers.Main)
                 {
-                    livePlaylistDataList.value = response
+                    when(response)
+                    {
+                        is ApiResponse.Success ->
+                        {
+                            livePlaylistDataList.value = response.data
+                        }
+                        is ApiResponse.Error ->
+                        {
+                            Log.d("PlaylistController",response.errorMessage)
+                        }
+                        is ApiResponse.Loading ->
+                        {
+                            TODO()
+                        }
+                    }
 
                 }
             }
@@ -60,7 +75,21 @@ class PlaylistController(
             playlistApiInterface.getByPlaylistId(id!!.toLong()).collect { response ->
                 withContext(Dispatchers.Main)
                 {
-                    livePlaylistData.value = response
+                    when(response)
+                    {
+                        is ApiResponse.Success ->
+                        {
+                            livePlaylistData.value = response.data
+                        }
+                        is ApiResponse.Error ->
+                        {
+                            Log.d("PlaylistController",response.errorMessage)
+                        }
+                        is ApiResponse.Loading ->
+                        {
+                            TODO()
+                        }
+                    }
                 }
             }
         }

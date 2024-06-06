@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.musicmobileapp.models.dto.UserModel
 import com.example.musicmobileapp.network.AuthApiInterface
+import com.example.musicmobileapp.network.api.ApiResponse
 import com.example.musicmobileapp.security.UserSecurityManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,10 +31,19 @@ class AuthController(
             authApiInterface.auth(user).collect() { response ->
                 withContext(Dispatchers.Main)
                 {
-                    userSecurityManager.saveUserSession(
-                        response.body()?.id ?: "",
-                        response.body()?.uuid ?: ""
-                    )
+                    when(response){
+                        is ApiResponse.Success ->{
+                            userSecurityManager.saveUserSession(
+                             response.data.id,response.data.uuid
+                            )
+                        }
+                        is ApiResponse.Error ->{
+                            Log.d("AuthController",response.errorMessage)
+                        }
+                        is ApiResponse.Loading ->{
+                            TODO()
+                        }
+                    }
                 }
             }
         }

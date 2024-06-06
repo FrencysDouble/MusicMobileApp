@@ -1,5 +1,6 @@
 package com.example.musicmobileapp.network
 
+import android.util.Log
 import com.example.musicmobileapp.di.ApiModule
 import com.example.musicmobileapp.models.dto.PlaylistDTO
 import com.example.musicmobileapp.models.dto.UserDTO
@@ -8,95 +9,146 @@ import com.example.musicmobileapp.models.dto.UserModel
 import com.example.musicmobileapp.models.screens.AlbumScreenModel
 import com.example.musicmobileapp.models.screens.PlaylistScreenModel
 import com.example.musicmobileapp.network.api.AlbumApi
+import com.example.musicmobileapp.network.api.ApiResponse
 import com.example.musicmobileapp.network.api.ArtistApi
 import com.example.musicmobileapp.network.api.AuthApi
 import com.example.musicmobileapp.network.api.MusicApi
 import com.example.musicmobileapp.network.api.PlaylistApi
+import com.example.musicmobileapp.network.api.handleApiResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 import okhttp3.ResponseBody
-import retrofit2.Response
 import java.io.InputStream
 
-class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,MusicApiInterface,SearchApiInterface,AlbumApiInterface,PlaylistApiInterface{
+class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,MusicApiInterface,SearchApiInterface,AlbumApiInterface,PlaylistApiInterface {
 
-    private val authApi : AuthApi
+    private val authApi: AuthApi
         get() = apiModule.provideAuthApi()
 
-    private val musicApi : MusicApi
+    private val musicApi: MusicApi
         get() = apiModule.provideMusicApi()
 
-    private val artistApi : ArtistApi
+    private val artistApi: ArtistApi
         get() = apiModule.provideArtistApi()
 
-    private val albumApi : AlbumApi
+    private val albumApi: AlbumApi
         get() = apiModule.provideAlbumApi()
 
-    private val playlistApi : PlaylistApi
+    private val playlistApi: PlaylistApi
         get() = apiModule.providePlaylistApi()
 
 
-    override suspend fun auth(userModel: UserModel): Flow<Response<UserDTO>> =
+    private suspend fun <T> responseCheck(
+        call: suspend () -> ApiResponse<T>
+    ): T {
+        return when (val response = call()) {
+            is ApiResponse.Success -> response.data
+            is ApiResponse.Error -> {
+                Log.d("MainApiController", response.errorMessage)
+                throw Exception(response.errorMessage)
+            }
+            is ApiResponse.Loading -> {
+                Log.d("MainApiController", "Loading...")
+                throw Exception("Loading state encountered")
+            }
+        }
+    }
+
+
+
+    override suspend fun auth(userModel: UserModel): Flow<ApiResponse<UserDTO>> =
         flow {
-            emit(authApi.auth(userModel))
+            val response = handleApiResponse(
+                call = { authApi.auth(userModel) }
+            )
+            emit(response)
         }
 
-    override suspend fun reg(userModel: UserModel): Flow<Response<UserDTO>> =
+    override suspend fun reg(userModel: UserModel): Flow<ApiResponse<UserDTO>> =
         flow {
-            emit(authApi.reg(userModel))
+            val response = handleApiResponse(
+                call = { authApi.reg(userModel) }
+            )
+            emit(response)
         }
 
     override suspend fun streamMusic(id: Long): InputStream {
         return musicApi.streamMusic(id)
     }
 
-    override suspend fun searchData(name: String): Flow<List<SearchScreenModel>> =
+
+    override suspend fun searchData(name: String): Flow<ApiResponse<List<SearchScreenModel>>> =
         flow {
-            val artistList = artistApi.getByName(name)
-            val albumList = albumApi.getByName(name)
-            val trackList = musicApi.getByName(name)
-            emit(SearchScreenModel.map(artistList, albumList,trackList))
+            try {
+                val artist = responseCheck(call = { artistApi.getByName(name) })
+                val album = responseCheck(call = { albumApi.getByName(name) })
+                val music = responseCheck(call = { musicApi.getByName(name) })
+                emit(ApiResponse.Success(SearchScreenModel.map(artist,album, music)))
+            }
+            catch (e: NullPointerException)
+            {
+                e.printStackTrace()
+                emit(ApiResponse.Error(e.message ?: "Null Pointer"))
+            }
         }
 
-    override suspend fun getAlbum(id: Long): Flow<AlbumScreenModel> =
+    override suspend fun getAlbum(id: Long): Flow<ApiResponse<AlbumScreenModel>> =
         flow {
-            val album = albumApi.getById(id)
-            val artist = artistApi.getById(album.body()?.artistId?.toLong() ?: 0)
-            emit(AlbumScreenModel.map(album,artist))
+            try {
+
+                val album = responseCheck(call = { albumApi.getById(id)})
+                val artist = responseCheck(call = { artistApi.getById(album.artistId.toLong())})
+                emit(ApiResponse.Success(AlbumScreenModel.map(album, artist)))
+            }
+            catch (e: NullPointerException)
+            {
+                e.printStackTrace()
+                emit(ApiResponse.Error(e.message ?: "Album"))
+            }
         }
 
-    override suspend fun createPlaylist(playlistDTO: PlaylistDTO): Flow<ResponseBody> =
+    override suspend fun createPlaylist(playlistDTO: PlaylistDTO): Flow<ApiResponse<ResponseBody>> =
         flow {
-            val response = playlistApi.createPlaylist(playlistDTO)
+            val response = handleApiResponse (
+                call = {playlistApi.createPlaylist(playlistDTO)}
+            )
             emit(response)
         }
 
-    override suspend fun addTrackPlaylist(id: Long, trackId: Long) : Flow<ResponseBody> =
+    override suspend fun addTrackPlaylist(id: Long, trackId: Long) : Flow<ApiResponse<ResponseBody>> =
         flow {
-            val response = playlistApi.addTrackPlaylist(id,trackId)
+            val response = handleApiResponse(
+                call = {playlistApi.addTrackPlaylist(id,trackId)}
+            )
             emit(response)
         }
 
-    override suspend fun getAllByCreator(id: Long): Flow<List<PlaylistScreenModel>> =
-    flow {
-        val playlistList = playlistApi.getAllCreatorId(id)
-        emit(PlaylistScreenModel.map(playlistList.body()))
-    }
+    override suspend fun getAllByCreator(id: Long): Flow<ApiResponse<List<PlaylistScreenModel>>> =
+        flow {
+            val response = handleApiResponse (
+                call = {playlistApi.getAllCreatorId(id)},
+                map = {PlaylistScreenModel.map(it)}
+            )
+            emit(response)
+        }
 
-    override suspend fun getByPlaylistId(id: Long): Flow<PlaylistScreenModel> =
+    override suspend fun getByPlaylistId(id: Long): Flow<ApiResponse<PlaylistScreenModel>> =
     flow {
-        val playlist = playlistApi.getByPlaylistId(id)
-        emit(PlaylistScreenModel.mapOne(playlist.body())!!)
+        val response = handleApiResponse (
+            call = {playlistApi.getByPlaylistId(id)},
+            map = {PlaylistScreenModel.mapOne(it)}
+        )
+        emit(response)
     }
 }
 
 
 interface AuthApiInterface
 {
-    suspend fun auth(userModel: UserModel): Flow<Response<UserDTO>>
+    suspend fun auth(userModel: UserModel): Flow<ApiResponse<UserDTO>>
 
-    suspend fun reg(userModel: UserModel): Flow<Response<UserDTO>>
+    suspend fun reg(userModel: UserModel): Flow<ApiResponse<UserDTO>>
 }
 
 interface MusicApiInterface
@@ -106,21 +158,21 @@ interface MusicApiInterface
 
 interface SearchApiInterface
 {
-    suspend fun searchData(name : String): Flow<List<SearchScreenModel>>
+    suspend fun searchData(name : String): Flow<ApiResponse<List<SearchScreenModel>>>
 }
 
 interface AlbumApiInterface
 {
-    suspend fun getAlbum(id: Long) : Flow<AlbumScreenModel>
+    suspend fun getAlbum(id: Long) : Flow<ApiResponse<AlbumScreenModel>>
 }
 
 interface PlaylistApiInterface
 {
-    suspend fun createPlaylist(playlistDTO: PlaylistDTO) : Flow<ResponseBody>
+    suspend fun createPlaylist(playlistDTO: PlaylistDTO) : Flow<ApiResponse<ResponseBody>>
 
-    suspend fun addTrackPlaylist(id: Long,trackId : Long) : Flow<ResponseBody>
+    suspend fun addTrackPlaylist(id: Long,trackId : Long) : Flow<ApiResponse<ResponseBody>>
 
-    suspend fun getAllByCreator(id: Long) : Flow<List<PlaylistScreenModel>>
+    suspend fun getAllByCreator(id: Long) : Flow<ApiResponse<List<PlaylistScreenModel>>>
 
-    suspend fun getByPlaylistId(id : Long) : Flow<PlaylistScreenModel>
+    suspend fun getByPlaylistId(id : Long) : Flow<ApiResponse<PlaylistScreenModel>>
 }

@@ -5,7 +5,6 @@ import com.example.musicmobileapp.models.Title
 import com.example.musicmobileapp.models.dto.TrackModel
 import com.example.musicmobileapp.models.dto.AlbumModel
 import com.example.musicmobileapp.network.api.ApiRoutes.BASE_FILE_URL
-import retrofit2.Response
 
 data class SearchScreenModel(
 
@@ -25,17 +24,14 @@ data class SearchScreenModel(
     companion object
     {
         fun map(
-            arl: Response<List<ArtistModel>>,
-            all: Response<List<AlbumModel>>,
-            tll: Response<List<TrackModel>>
+            arl: List<ArtistModel>,
+            all: List<AlbumModel>,
+            tll: List<TrackModel>
         ): List<SearchScreenModel>
         {
-            val artistList = arl.body() ?: emptyList()
-            val albumList = all.body() ?: emptyList()
-            val trackList = tll.body() ?: emptyList()
             val mappedData = emptyList<SearchScreenModel>().toMutableList()
 
-            for (am in artistList) {
+            for (am in arl) {
                 mappedData.add(
                     SearchScreenModel(
                         id = am.id,
@@ -49,7 +45,7 @@ data class SearchScreenModel(
 
             }
 
-            for (al in albumList)
+            for (al in all)
             {
                 mappedData.add(
                     SearchScreenModel(
@@ -63,7 +59,7 @@ data class SearchScreenModel(
                 )
             }
 
-            for (t in trackList ) {
+            for (t in tll ) {
                 mappedData.add(
                     SearchScreenModel(
                         id = t.id,
