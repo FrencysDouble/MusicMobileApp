@@ -3,6 +3,7 @@ package com.example.musicmobileapp.network
 import android.util.Log
 import com.example.musicmobileapp.di.ApiModule
 import com.example.musicmobileapp.models.dto.PlaylistDTO
+import com.example.musicmobileapp.models.dto.TrackModel
 import com.example.musicmobileapp.models.dto.UserDTO
 import com.example.musicmobileapp.models.screens.SearchScreenModel
 import com.example.musicmobileapp.models.dto.UserModel
@@ -76,6 +77,14 @@ class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,Mus
     override suspend fun streamMusic(id: Long): InputStream {
         return musicApi.streamMusic(id)
     }
+
+    override suspend fun getById(id: Long): Flow<ApiResponse<TrackModel>> =
+        flow {
+            val response = handleApiResponse(
+                call = {musicApi.getById(id)}
+            )
+            emit(response)
+        }
 
 
     override suspend fun searchData(name: String): Flow<ApiResponse<List<SearchScreenModel>>> =
@@ -154,6 +163,8 @@ interface AuthApiInterface
 interface MusicApiInterface
 {
     suspend fun streamMusic(id : Long) : InputStream
+
+    suspend fun getById(id: Long) : Flow<ApiResponse<TrackModel>>
 }
 
 interface SearchApiInterface

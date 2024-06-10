@@ -36,6 +36,8 @@ class SearchScreenController(
                         is ApiResponse.Loading -> {
                             Log.d("SearchScreenController", "Loading...")
                         }
+
+                        else -> {}
                     }
                 }
             }

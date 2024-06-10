@@ -1,5 +1,6 @@
 package com.example.musicmobileapp.models.dto
 
+import com.example.musicmobileapp.network.api.ApiRoutes
 import com.squareup.moshi.Json
 
 data class TrackModel(
@@ -9,4 +10,7 @@ data class TrackModel(
     val audioPath: String,
     @Json(name = "image_path")
     val imagePath : String
-)
+) {
+    val imageUrl: String
+        get() = "${ApiRoutes.BASE_FILE_URL}/getIMG?path=${imagePath.replace("\\", "/")}"
+}

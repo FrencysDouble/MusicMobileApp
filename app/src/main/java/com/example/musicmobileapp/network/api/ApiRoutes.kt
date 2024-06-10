@@ -14,8 +14,9 @@ object ApiRoutes {
 
     // Music API
 
-    const val STREAM = "music/stream/{id}"
+    const val STREAM = "file/stream/{id}"
     const val TRACKGETNAME = "track/getByName"
+    const val TRACKGETID = "track/get/{id}"
 
     // Artist API
 

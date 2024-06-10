@@ -1,24 +1,21 @@
 package com.example.musicmobileapp.controllers
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.runtime.MutableState
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.musicmobileapp.models.PlayerState
+import androidx.lifecycle.viewModelScope
+import androidx.media3.common.Player
+import com.example.musicmobileapp.models.dto.TrackModel
 import com.example.musicmobileapp.network.MusicApiInterface
+import com.example.musicmobileapp.network.api.ApiResponse
 import com.example.musicmobileapp.network.service.MusicPlayerService
 import com.example.musicmobileapp.network.service.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
-import javax.inject.Inject
 
 class MusicPlayerController(
     private val musicApiInterface: MusicApiInterface,
@@ -26,10 +23,10 @@ class MusicPlayerController(
 
 ) : ViewModel() {
 
+     val musicData : MutableLiveData<TrackModel> = MutableLiveData()
 
-    val isPlaying : MutableState<Boolean> = musicPlayerService.isPlayingState
+    val isPlaying: MutableState<Boolean> = musicPlayerService.isPlayingState
     private val _musicData = MutableLiveData<Resource<InputStream>>()
-    val musicData: LiveData<Resource<InputStream>> = _musicData
 
     private val cScope = CoroutineScope(Dispatchers.IO)
 
@@ -47,10 +44,10 @@ class MusicPlayerController(
                 }
                 println(inputStream)
                 _musicData.postValue(Resource.Success(inputStream))
-               val file = musicPlayerService.createTempAudioFile(inputStream)
+                //val file = musicPlayerService.createTempAudioFile(inputStream)
                 withContext(Dispatchers.Main)
                 {
-                    musicPlayerService.initializePlayer(file)
+                    //musicPlayerService.initializePlayer()
                 }
 
             } catch (e: Exception) {
@@ -60,14 +57,33 @@ class MusicPlayerController(
         }
     }
 
-    fun onPlayerPause()
-    {
-        musicPlayerService.pause()
-    }
 
-    fun onPlayerStart()
+    fun dataLoad(id : Long)
     {
-        musicPlayerService.start()
+        viewModelScope.launch {
+            musicApiInterface.getById(id).collect { response ->
+                withContext(Dispatchers.Main)
+                {
+                    when(response)
+                    {
+                        is ApiResponse.Success -> {
+                            musicData.value = response.data
+                            musicPlayerService.initializePlayer(id)
+                        }
+                        is ApiResponse.Error -> {
+                            Log.d("MusicPlayerController",response.errorMessage)
+                        }
+                        is ApiResponse.Loading ->
+                        {
+                            TODO()
+                        }
+
+                        else -> {}
+                    }
+
+                }
+            }
+        }
     }
 
     override fun onCleared()

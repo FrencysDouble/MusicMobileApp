@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/layout/custom_time_bar.xml -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center">
+
+    <androidx.media3.ui.DefaultTimeBar
+        android:id="@+id/custom_time_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:ad_marker_width="2dp"
+        app:bar_height="4dp"
+        app:scrubber_drawable="@drawable/pl_scrubber"
+        app:buffered_color="@color/progressBuffered"
+        app:played_ad_marker_color="@color/progressTwo"
+        app:played_color="@color/progressOne"
+        app:scrubber_color="@color/progressBuffered"
+        app:touch_target_height="48dp"
+        app:unplayed_color="@color/progressTwo" />
+
+</FrameLayout>

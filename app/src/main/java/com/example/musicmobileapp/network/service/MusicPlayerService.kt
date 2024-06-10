@@ -2,37 +2,21 @@ package com.example.musicmobileapp.network.service
 
 import android.content.ContentValues.TAG
 import androidx.annotation.OptIn
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.core.net.toUri
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.media3.common.C
+import androidx.compose.ui.platform.PlatformTextInputInterceptor
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
-import androidx.media3.common.SimpleBasePlayer
-import androidx.media3.common.Timeline
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultHttpDataSource
-import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
-import androidx.media3.exoplayer.upstream.DefaultAllocator
-import com.example.musicmobileapp.models.PlayerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.InputStream
 
-class MusicPlayerService (private val player: ExoPlayer) {
+class MusicPlayerService (private val player: ExoPlayer) : MusicInterface {
 
 
     private val cScope = CoroutineScope(Dispatchers.IO)
@@ -40,10 +24,12 @@ class MusicPlayerService (private val player: ExoPlayer) {
     val isPlayingState = mutableStateOf(false)
 
     @OptIn(UnstableApi::class)
-    fun initializePlayer(file: File)
+    fun initializePlayer(id: Long)
     {
-        val url = "https://ia804604.us.archive.org/2/items/playboi-carti-magnolia_202201/Playboi%20Carti%20-%20Magnolia.mp3"
+        val url = "http://10.0.2.2:8080/api/v1/file/stream/$id"
         val dataSourceFactory: DataSource.Factory = DefaultHttpDataSource.Factory()
+
+
 
         val mediaSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
             .createMediaSource(MediaItem.fromUri(url))
@@ -54,37 +40,19 @@ class MusicPlayerService (private val player: ExoPlayer) {
         player.prepare()
         player.addListener(playerListener)
     }
-    fun createTempAudioFile(inputStream: InputStream?): File {
-        if (inputStream != null) {
-            return try {
-                val file = File.createTempFile("temp", ".mp3")
-                val buffer = ByteArray(4096)
-                cScope.launch {
-                    file.outputStream().use { outputStream ->
-                        var bytesRead: Int
-                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                            outputStream.write(buffer, 0, bytesRead)
-                        }
-                    }
-                }
-                file
-            } catch (e: Exception) {
-                e.printStackTrace()
-                File.createTempFile("empty", ".mp3")
-            }
-        }
-        return File.createTempFile("error", ".mp3")
-    }
 
     @OptIn(UnstableApi::class)
-    fun start()
+    override fun onStart()
     {
+        Log.d("BufferedPosition",player.bufferedPosition.toString())
+        Log.d("BufferedPercentage",player.bufferedPercentage.toString())
+        Log.d("IsLoading" ,player.isLoading.toString())
         Log.d("FULL Duration",player.duration.toString())
         player.play()
 
     }
 
-    fun pause()
+    override fun onPause()
     {
         player.pause()
 
@@ -93,6 +61,16 @@ class MusicPlayerService (private val player: ExoPlayer) {
     fun clear()
     {
         player.release()
+    }
+
+
+    override fun onRepeatModeOn() {
+        player.repeatMode = Player.REPEAT_MODE_ONE
+    }
+
+    override fun onRepeatModeOff()
+    {
+        player.repeatMode = Player.REPEAT_MODE_OFF
     }
 
 
@@ -119,4 +97,16 @@ class MusicPlayerService (private val player: ExoPlayer) {
         }
 
     }
+}
+
+interface MusicInterface {
+
+    fun onStart()
+
+    fun onPause()
+
+    fun onRepeatModeOn()
+
+    fun onRepeatModeOff()
+
 }

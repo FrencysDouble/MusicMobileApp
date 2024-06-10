@@ -3,15 +3,16 @@ package com.example.musicmobileapp.di
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.media.MediaCodec
-import android.media.MediaFormat
-import androidx.media3.common.C
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
+import androidx.media3.exoplayer.trackselection.AdaptiveTrackSelection
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.upstream.DefaultAllocator
+import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter
 import androidx.media3.extractor.ts.TsExtractor.Mode
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
@@ -57,17 +58,35 @@ open class CoreModule () {
 
     @UnstableApi
     @Provide
-    open fun provideExoPlayer(context: Context) : ExoPlayer
-    {
-        val customAllocator = DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE * 2)
+    open fun provideExoPlayer(context: Context): ExoPlayer {
+        // Create a BandwidthMeter instance
+        val bandwidthMeter = DefaultBandwidthMeter.Builder(context).build()
+
+        // Define RenderersFactory
+        val renderersFactory = DefaultRenderersFactory(context).apply {
+            setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF)
+        }
+
+        // Define TrackSelector
+        val trackSelector = DefaultTrackSelector(context, AdaptiveTrackSelection.Factory())
+
         val loadControl = DefaultLoadControl.Builder()
-            .setAllocator(customAllocator)
-            .setBufferDurationsMs(5000, 25000, 5000, 5000)
-            .setTargetBufferBytes(1024 * 1024 * 4)
+            .setBufferDurationsMs(
+                20 * 1000,
+                30 * 1000,
+                5 * 1000,
+                20 * 1000
+            )
+            .setPrioritizeTimeOverSizeThresholds(true)
             .build()
 
+        // Initialize and return the ExoPlayer instance
         return ExoPlayer.Builder(context)
-            .setLoadControl(loadControl).build()
+            .setRenderersFactory(renderersFactory)
+            .setTrackSelector(trackSelector)
+            .setLoadControl(loadControl)
+            .setBandwidthMeter(bandwidthMeter)
+            .build()
     }
 
     @Provide

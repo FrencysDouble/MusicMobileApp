@@ -14,6 +14,7 @@ import com.example.musicmobileapp.network.MusicApiInterface
 import com.example.musicmobileapp.network.PlaylistApiInterface
 import com.example.musicmobileapp.network.SearchApiInterface
 import com.example.musicmobileapp.network.service.MusicPlayerService
+import com.example.musicmobileapp.network.service.SelectedTrackItem
 import com.example.musicmobileapp.security.UserSecurityManager
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
@@ -48,6 +49,9 @@ interface ControllersModule {
 
     @Provide(cache = Provide.CacheType.Soft)
     fun providePlaylistController(playlistApiInterface: PlaylistApiInterface = mApiController(),userSecurityManager: UserSecurityManager = provideSecurityManager()) : PlaylistController
+
+    @Provide(cache = Provide.CacheType.Soft)
+    fun provideSelectedTrackItem() : SelectedTrackItem
 
 }
 

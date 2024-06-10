@@ -36,11 +36,13 @@ object Routes {
     object Loading : Screen("loading")
 
     object AlbumScreen : Screen("album/{albumId}")
-    object MusicPlayerScreen : Screen("musicPlayerScreen")
+    object MusicPlayerScreen : Screen("musicPlayerScreen/{trackId}")
 
     object PlaylistCreationScreen : Screen("PlaylistCreationScreen")
 
     object PlaylistScreen : Screen("playlist/{playlistId}")
+
+    object BottomMusicPlayer : Screen("bottomMusicPlayer")
 }
 
 

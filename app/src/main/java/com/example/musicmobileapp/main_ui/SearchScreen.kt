@@ -46,12 +46,14 @@ import androidx.navigation.NavHostController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicmobileapp.R
+import com.example.musicmobileapp.controllers.MusicPlayerController
 import com.example.musicmobileapp.controllers.SearchScreenController
 import com.example.musicmobileapp.main_ui.navigation.BottomNavigationBar
 import com.example.musicmobileapp.main_ui.navigation.Routes
 import com.example.musicmobileapp.models.screens.SearchScreenModel
 import com.example.musicmobileapp.models.Title
-import com.example.musicmobileapp.network.api.ApiResponse
+import com.example.musicmobileapp.network.service.MusicInterface
+import com.example.musicmobileapp.network.service.SelectedTrackItem
 import com.example.musicmobileapp.ui.theme.mainBackground
 import com.example.musicmobileapp.ui.theme.mainBackgroundAccent
 import com.example.musicmobileapp.ui.theme.textSecondary
@@ -60,21 +62,33 @@ import com.example.musicmobileapp.ui.theme.textSecondary
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun SearchScreen(navController: NavHostController, controller: SearchScreenController) {
+fun SearchScreen(
+    navController: NavHostController,
+    controller: SearchScreenController,
+    musicService: MusicInterface,
+    selectItem: SelectedTrackItem,
+    musicController: MusicPlayerController
+) {
     val isDialogShow by remember { mutableStateOf(controller.isDialogShow) }
     val searchList by controller.liveSearchData.observeAsState()
 
+
     if(isDialogShow.value)
     {
-        MoreDialog.BottomSheet {
-
-        }
+        MoreDialog.BottomSheet(onDismissRequest = {
+            controller.dialogDisable()
+        })
     }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        bottomBar = { BottomNavigationBar(navController = navController) }) {
-        Screen(searchList!!, controller, navController, isDialogShow.value)
+        bottomBar = {
+            Column {
+                BottomMusicPlayer.Player(navController,musicService,selectItem,musicController)
+                BottomNavigationBar(navController = navController)
+            }
+        }) {
+        Screen(searchList!!, controller, navController,selectItem)
     }
 
 }
@@ -87,7 +101,7 @@ fun Screen(
     searchList: List<SearchScreenModel>,
     controller: SearchScreenController,
     navController: NavHostController,
-    isDialogShow: Boolean
+    selectItem: SelectedTrackItem,
 )
 {
     val isSearchBarActive by controller.isNotActive
@@ -99,7 +113,7 @@ fun Screen(
 
         SearchField(controller)
         when (isSearchBarActive) {
-            true -> MainList(searchList = searchList, navController, controller)
+            true -> MainList(searchList = searchList, navController, controller,selectItem)
             false -> HistoryList()
         }
     }
@@ -202,7 +216,7 @@ fun HistoryListItem()
 
 
 @Composable
-fun MainList(searchList: List<SearchScreenModel>, navController: NavHostController,controller: SearchScreenController)
+fun MainList(searchList: List<SearchScreenModel>, navController: NavHostController,controller: SearchScreenController,selectItem: SelectedTrackItem)
 {
     LazyColumn(modifier = Modifier
         .fillMaxSize()
@@ -210,7 +224,7 @@ fun MainList(searchList: List<SearchScreenModel>, navController: NavHostControll
         verticalArrangement = Arrangement.spacedBy(8.dp))
     {
         items(searchList){ item ->
-            MainListItem(item,navController,controller)
+            MainListItem(item,navController,controller, selectItem)
         }
 
     }
@@ -222,7 +236,8 @@ fun MainList(searchList: List<SearchScreenModel>, navController: NavHostControll
 fun MainListItem(
     item: SearchScreenModel,
     navController: NavHostController,
-    controller: SearchScreenController
+    controller: SearchScreenController,
+    selectItem: SelectedTrackItem
 )
 {
     Row(
@@ -233,7 +248,10 @@ fun MainListItem(
                 when (item.titleID) {
                     Title.ARTISTIDTITLE -> TODO("Not yet implemented")
                     Title.ALBUMIDTITLE -> navController.navigate("${Routes.AlbumScreen.route}/${item.id}")
-                    Title.TRACKIDTITLE -> TODO("Not yet implemented")
+                    Title.TRACKIDTITLE -> {
+                        navController.navigate("${Routes.MusicPlayerScreen.route}/${item.id}")
+                        selectItem.setSelectedItemId(item.id)
+                    }
                 }
             },
         verticalAlignment = Alignment.CenterVertically

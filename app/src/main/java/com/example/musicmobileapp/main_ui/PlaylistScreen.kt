@@ -47,8 +47,6 @@ fun PlaylistScreen(
         controller.oneDataLoad(playlistId)
     }
 
-
-
     Column(
         Modifier
             .fillMaxSize()
@@ -72,10 +70,21 @@ fun PlaylistScreen(
 @Composable
 fun PlaylistImage(playlist: PlaylistScreenModel)
 {
-    loadImage(url =playlist.imageUrl,
+    if (!playlist.imageUrl.isEmpty()) {
+        loadImage(
+            url = playlist.imageUrl,
+            Modifier
+                .fillMaxWidth()
+                .height(327.dp)
+        )
+    }
+    else
+    {
+        Image(painter = painterResource(id = R.drawable.ma_loading), contentDescription ="" ,
         Modifier
             .fillMaxWidth()
-            .height(327.dp))
+            .size(327.dp))
+    }
 }
 
 
@@ -156,11 +165,11 @@ fun AlbumItemList(track : TrackModel)
         Text(text = track.id.toString(),Modifier.padding(end = 12.dp))
         Log.d("AlbumList",track.imagePath)
         loadImage(url = track.imagePath,
-        Modifier
-            .size(44.dp)
-            .clip(
-                RoundedCornerShape(8.dp)
-            ))
+            Modifier
+                .size(44.dp)
+                .clip(
+                    RoundedCornerShape(8.dp)
+                ))
         Text(text = track.name, Modifier.padding(start = 12.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             IconButton(onClick = { /*TODO*/ }) {

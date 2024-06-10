@@ -37,8 +37,8 @@ object MoreDialog {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun BottomSheet(function: () -> Unit) {
-        ModalBottomSheet(onDismissRequest = { /*TODO*/ }) {
+    fun BottomSheet(onDismissRequest: () -> Unit) {
+        ModalBottomSheet(onDismissRequest = { onDismissRequest.invoke()}, containerColor = mainBackground,) {
             dialog()
         }
     }
@@ -72,7 +72,7 @@ fun upperDialog()
         Modifier
             .size(50.dp)
             .clip(
-                RoundedCornerShape(128.dp)
+                RoundedCornerShape(8.dp)
             ))
     Column(Modifier.padding(start = 8.dp)) {
         Text(text = "Trance .....", fontSize = 24.sp)
@@ -88,31 +88,31 @@ fun upperDialog()
 fun ButtonList() {
     Box(modifier = Modifier.wrapContentSize().padding(top = 12.dp))
     {
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(24.dp)) {
             item {
                 ItemButtons(
-                    imgId = R.drawable.ic_home,
+                    imgId = R.drawable.dialog_add,
                     textId = R.string.dialog_add_playlist,
                     onClick = {}
                 )
             }
             item {
                 ItemButtons(
-                    imgId = R.drawable.ic_home,
+                    imgId = R.drawable.dialog_queue,
                     textId = R.string.dialog_add_query,
                     onClick = {}
                 )
             }
             item {
                 ItemButtons(
-                    imgId = R.drawable.ic_home,
+                    imgId = R.drawable.dialog_album,
                     textId = R.string.dialog_go_album,
                     onClick = {}
                 )
             }
             item {
                 ItemButtons(
-                    imgId = R.drawable.ic_home,
+                    imgId = R.drawable.dialog_artist,
                     textId = R.string.dialog_go_artist,
                     onClick = {}
                 )
@@ -126,7 +126,7 @@ fun ItemButtons(imgId: Int, textId: Int,onClick: () -> Unit)
 {
     Row(Modifier.fillMaxWidth().clickable { onClick() }, verticalAlignment = Alignment.CenterVertically) {
         Icon(painter = painterResource(id = imgId), contentDescription ="" ,modifier = Modifier.size(40.dp))
-        Text(text = stringResource(id = textId),Modifier.padding(start = 12.dp), fontSize = 24.sp)
+        Text(text = stringResource(id = textId),Modifier.padding(start = 12.dp), fontSize = 20.sp)
     }
 }
 

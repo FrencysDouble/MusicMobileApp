@@ -1,5 +1,6 @@
 package com.example.musicmobileapp.network.api
 
+import androidx.media3.exoplayer.upstream.CmcdData.StreamType
 import com.example.musicmobileapp.models.dto.TrackModel
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -18,6 +19,8 @@ class MusicApi(private val retrofit: Retrofit) {
 
     suspend fun getByName(name: String): ApiResponse<List<TrackModel>> = handleApiResponse (call = {service.findByName(name)})
 
+    suspend fun getById(id: Long): Response<TrackModel> = service.findById(id)
+
 }
 
 interface MusicApiPoints
@@ -33,4 +36,10 @@ interface MusicApiPoints
     suspend fun findByName(
         @Query("name") name : String
     ): Response<List<TrackModel>>
+
+
+    @GET(ApiRoutes.TRACKGETID)
+    suspend fun findById(
+        @Path("id") id : Long
+    ): Response<TrackModel>
 }

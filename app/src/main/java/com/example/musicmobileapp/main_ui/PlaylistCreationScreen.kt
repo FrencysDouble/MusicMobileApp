@@ -136,6 +136,7 @@ fun CreationButtons(
 
         Button(onClick = {
             controller.createPlaylist(searchQuery.value.text)
+            controller.dataLoad()
             navController.navigate(Routes.NavBar.Home.route) },
             colors = ButtonColors(
             containerColor = mainPrimary,

@@ -1,78 +1,80 @@
 package com.example.musicmobileapp.main_ui
 
 import android.util.Log
+import android.view.LayoutInflater
+import android.widget.FrameLayout
+import androidx.annotation.OptIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.media3.common.Player
+import androidx.media3.common.Timeline
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.DefaultTimeBar
+import androidx.media3.ui.TimeBar
 import androidx.navigation.NavHostController
 import com.example.musicmobileapp.R
 import com.example.musicmobileapp.controllers.MusicPlayerController
-import com.example.musicmobileapp.ui.theme.gestureButton
+import com.example.musicmobileapp.network.service.MusicInterface
 import com.example.musicmobileapp.ui.theme.mainBackground
+import com.example.musicmobileapp.ui.theme.mainBackgroundAccent
 import com.example.musicmobileapp.ui.theme.mainPrimary
-import com.example.musicmobileapp.ui.theme.progressOne
-import com.example.musicmobileapp.ui.theme.progressTwo
+import com.example.musicmobileapp.ui.theme.textPrimary
 import com.example.musicmobileapp.ui.theme.textSecondary
 import kotlinx.coroutines.delay
-
-
 
 
 @Composable
 fun MusicPlayerScreen(
     navController: NavHostController,
     controller: MusicPlayerController,
-    player: ExoPlayer
+    player: ExoPlayer,
+    trackId: String?,
+    musicService: MusicInterface
 )
 
 {
 
+    LaunchedEffect(trackId) {
+        trackId?.let { controller.dataLoad(it.toLong()) }
+    }
+
+    val music by controller.musicData.observeAsState()
     val isPlaying by remember { mutableStateOf(controller.isPlaying) }
     var currentPosition by remember { mutableStateOf(0) }
 
-
     LaunchedEffect(key1 = player.currentPosition, key2 = player.isPlaying) {
-        while (isPlaying.value) {
+        while (true) {
             delay(1000)
             currentPosition = player.currentPosition.toInt()
             Log.d("msg", player.currentPosition.toInt().toString())
@@ -88,14 +90,14 @@ fun MusicPlayerScreen(
             .padding(start = 24.dp, end = 24.dp, top = 50.dp, bottom = 50.dp)
             .fillMaxSize())
         {
-            Image(painter = painterResource(id = R.drawable.photo), contentDescription ="" ,Modifier.size(350.dp))
+            music?.let { ImageLoading.loadImage(url = it.imageUrl,Modifier.size(350.dp), context = LocalContext.current) }
             ContainerView(player.duration.toInt(),currentPosition,player)
             Column(
                 Modifier
                     .fillMaxWidth()
                     .padding(top = 25.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "Bohemian Rhapsody", fontSize = 23.sp)
+                    music?.let { Text(text = it.name, fontSize = 23.sp) }
                     IconButton(onClick = { /*TODO*/ },
                         Modifier
                             .wrapContentSize()
@@ -104,39 +106,59 @@ fun MusicPlayerScreen(
 
                     }
                 }
-                Text(text = "Queen")
+                music?.let { Text(text = it.artistName) }
             }
-            MainPlayer(isPlaying.value,controller)
+            MainPlayer(musicService,player,isPlaying)
 
         }
     }
 
 }
 @Composable()
-fun MainPlayer(isPlaying: Boolean, controller: MusicPlayerController)
+fun MainPlayer(musicService: MusicInterface, player: ExoPlayer, isPlaying: MutableState<Boolean>)
 {
+    val repeatMode = remember { mutableStateOf(player.repeatMode) }
     Row (
         Modifier
             .fillMaxWidth()
-            .padding(top = 100.dp), horizontalArrangement = Arrangement.Center){
-        IconButton(onClick = { /*TODO*/ },Modifier.padding(end = 30.dp)) {
-            Image(painter = painterResource(id = R.drawable.ma_rotate), contentDescription = "")
+            .padding(top = 100.dp), horizontalArrangement = Arrangement.Center)
+    {
+        IconButton(onClick = {
+            Log.d("Repeat State = ", repeatMode.value.toString())
+            when(repeatMode.value) {
+            Player.REPEAT_MODE_ONE -> {
+                musicService.onRepeatModeOff()
+                repeatMode.value = Player.REPEAT_MODE_OFF
+            }
+            Player.REPEAT_MODE_OFF ->
+            {
+                musicService.onRepeatModeOn()
+                repeatMode.value = Player.REPEAT_MODE_ONE
+            }
+
+        } }
+            ,Modifier.padding(end = 30.dp))
+        {
+            Icon(painter = painterResource(id = if(repeatMode.value == Player.REPEAT_MODE_ONE)  R.drawable.ma_rotate_active else R.drawable.ma_rotate),
+                contentDescription = "")
         }
-        IconButton(onClick = { /*TODO*/ },Modifier.padding(end = 20.dp)) {
+
+
+        IconButton(onClick = { /*TODO*/ },Modifier.padding(end = 20.dp))
+        {
             Image(painter = painterResource(id = R.drawable.ma_skip_previous), contentDescription ="")
         }
         IconButton(onClick = {
-            println(isPlaying)
-            if (isPlaying) {
-                controller.onPlayerPause()
+            if (player.isPlaying) {
+                musicService.onPause()
             }
             else
             {
-                controller.onPlayerStart()
+                musicService.onStart()
             }
         }) {
             Image(painter = painterResource(
-                id = when(isPlaying) {
+                id = when(isPlaying.value) {
                     true -> R.drawable.ma_pause
                     false -> R.drawable.ma_launch
                 }),
@@ -154,10 +176,8 @@ fun MainPlayer(isPlaying: Boolean, controller: MusicPlayerController)
 }
 
 @Composable
-fun ContainerView(totalDuration: Int, currentTimesPosition: Int,player: ExoPlayer) {
+fun ContainerView(totalDuration: Int, currentTimesPosition: Int, player: ExoPlayer) {
 
-    var buttonPosition by remember { mutableStateOf(0.dp) }
-    val maxWidth = 350.dp
     var trackDuration by remember { mutableStateOf(totalDuration) }
     var currentTime by remember { mutableStateOf(currentTimesPosition) }
     var timeLeft by remember { mutableStateOf(totalDuration - currentTimesPosition) }
@@ -165,122 +185,95 @@ fun ContainerView(totalDuration: Int, currentTimesPosition: Int,player: ExoPlaye
     LaunchedEffect(totalDuration, currentTimesPosition) {
         trackDuration = totalDuration
         currentTime = currentTimesPosition
+
         updateProgressState(
             currentTimesPosition = currentTime,
             totalDuration = trackDuration,
-            maxWidth = maxWidth,
-            onUpdateButtonPosition = { newPosition -> buttonPosition = newPosition },
             onUpdateTimeLeft = { newTimeLeft -> timeLeft = newTimeLeft }
         )
     }
 
-    Log.d("MutableDuration", trackDuration.toString())
-
     Box(
         modifier = Modifier
-            .wrapContentSize()
+            .fillMaxWidth()
+            .height(80.dp)
             .background(mainBackground)
             .padding(top = 20.dp),
         contentAlignment = Alignment.Center
     ) {
-        MusicPlayerProgressBar(
-            modifier = Modifier.fillMaxWidth(),
-            buttonPosition = buttonPosition,
-            onProgressBarClick = { clickPosition ->
-                updateTrackTime(
-                    player = player,
-                    clickPosition = clickPosition,
-                    maxWidth = maxWidth,
-                    totalDuration = trackDuration,
-                    onUpdateCurrentTime = { newTime ->
-                        currentTime = newTime
-                        timeLeft = trackDuration - currentTime
-                        buttonPosition = (newTime.toFloat() / trackDuration * maxWidth.value).dp
-                    }
-                )
-            }
-        )
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopStart) {
-            DragGestureButton(
-                buttonPosition = buttonPosition,
-                maxWidth = maxWidth,
-                onButtonPositionChange = { newPosition ->
-                    buttonPosition = newPosition
-                    currentTime = ((newPosition / maxWidth.value) * trackDuration).value.toInt()
-                    timeLeft = trackDuration - currentTime
-                },
-                currentPosition = currentTime
-            )
-        }
+        TestTimeBar(player = player)
+
         TextViewProgressBar(currentTime = currentTime, timeLeft = timeLeft)
     }
 }
 
+@OptIn(UnstableApi::class)
 @Composable
-fun MusicPlayerProgressBar(
-    modifier: Modifier = Modifier,
-    buttonPosition: Dp,
-    onProgressBarClick: (Dp) -> Unit
-) {
-    val backgroundColor = progressTwo
-    val progressColor = progressOne
+fun TestTimeBar(player: ExoPlayer) {
+    var scrubberPosition by remember { mutableStateOf(player.currentPosition) }
 
-    Box(
-        modifier = modifier
-            .height(4.dp)
-            .background(backgroundColor, RoundedCornerShape(8.dp))
-            .pointerInput(Unit) {
-                detectTapGestures { offset ->
-                    val clickPosition = offset.x.toDp()
-                    onProgressBarClick(clickPosition)
-                }
-            },
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Spacer(
-            modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth()
-                .background(backgroundColor)
-        )
-        Spacer(
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(buttonPosition)
-                .background(progressColor)
-        )
+    LaunchedEffect(player) {
+        while (true) {
+            scrubberPosition = player.currentPosition
+            delay(1000)
+        }
     }
-}
 
-@Composable
-fun DragGestureButton(
-    buttonPosition: Dp,
-    maxWidth: Dp,
-    onButtonPositionChange: (Dp) -> Unit,
-    currentPosition: Int
-) {
-    Box(
-        modifier = Modifier
-            .offset { IntOffset(buttonPosition.roundToPx(), 0) }
-            .height(20.dp)
-            .width(20.dp)
-            .background(gestureButton, RoundedCornerShape(128.dp))
-            .draggable(
-                orientation = Orientation.Horizontal,
-                state = rememberDraggableState { delta ->
-                    println("Delta = $delta")
-                    val smoothDelta = delta * 0.4f
-                    val newPosition = (buttonPosition + smoothDelta.dp).coerceIn(0.dp, maxWidth)
-                    onButtonPositionChange(newPosition)
-                }
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .height(15.dp)
-                .width(15.dp)
-                .background(mainPrimary, RoundedCornerShape(128.dp))
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        AndroidView(
+            modifier = Modifier.fillMaxWidth(),
+            factory = { ctx ->
+                val view = LayoutInflater.from(ctx).inflate(R.layout.custom_time_bar, null) as FrameLayout
+                val timeBar = view.findViewById<DefaultTimeBar>(R.id.custom_time_bar)
+
+                timeBar.addListener(object : TimeBar.OnScrubListener {
+                    override fun onScrubStart(timeBar: TimeBar, position: Long) {
+                    }
+
+                    override fun onScrubMove(timeBar: TimeBar, position: Long) {
+                        scrubberPosition = position
+                    }
+
+                    override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
+                        player.seekTo(position)
+                    }
+                })
+
+                player.addListener(object : Player.Listener {
+                    override fun onTimelineChanged(timeline: Timeline, reason: Int) {
+                        if (timeline.windowCount > 0) {
+                            val duration = timeline.getWindow(0, Timeline.Window()).durationMs
+                            timeBar.setDuration(duration)
+                        }
+                    }
+
+                    override fun onPositionDiscontinuity(reason: Int) {
+                        timeBar.setPosition(player.currentPosition)
+                    }
+
+                    override fun onIsPlayingChanged(isPlaying: Boolean) {
+                        if (isPlaying) {
+                            timeBar.setPosition(player.currentPosition)
+                        }
+                    }
+
+                    override fun onPlaybackStateChanged(state: Int) {
+                        if (state == Player.STATE_READY) {
+                            timeBar.setDuration(player.duration)
+                            timeBar.setPosition(player.currentPosition)
+                        }
+                    }
+                })
+
+                timeBar.setDuration(player.duration)
+                timeBar.setPosition(player.currentPosition)
+
+                view
+            },
+            update = { view ->
+                val timeBar = view.findViewById<DefaultTimeBar>(R.id.custom_time_bar)
+                timeBar.setPosition(scrubberPosition)
+            }
         )
     }
 }
@@ -322,28 +315,8 @@ fun formatTime(milliseconds: Int): String {
 fun updateProgressState(
     currentTimesPosition: Int,
     totalDuration: Int,
-    maxWidth: Dp,
-    onUpdateButtonPosition: (Dp) -> Unit,
     onUpdateTimeLeft: (Int) -> Unit
 ) {
-    val buttonPosition = if (totalDuration > 0) {
-        (currentTimesPosition.toFloat() / totalDuration * maxWidth.value).dp
-    } else {
-        0.dp
-    }
-    onUpdateButtonPosition(buttonPosition)
     onUpdateTimeLeft(totalDuration - currentTimesPosition)
-}
-
-fun updateTrackTime(
-    player: ExoPlayer,
-    clickPosition: Dp,
-    maxWidth: Dp,
-    totalDuration: Int,
-    onUpdateCurrentTime: (Int) -> Unit
-) {
-    val newTime = ((clickPosition / maxWidth.value) * totalDuration).value.toInt()
-    player.seekTo(newTime.toLong())
-    onUpdateCurrentTime(newTime)
 }
 

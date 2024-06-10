@@ -22,5 +22,9 @@
     <string name="playlist_creation_btn_cancel">Отмена</string>
     <string name="playlist_creation_btn_submit">Создать</string>
 
+    <string name="home_screen_title">Дом</string>
+    <string name="home_screen_playlist">Плейлисты</string>
+    <string name="home_screen_albums">Альбомы</string>
+
 
 </resources>

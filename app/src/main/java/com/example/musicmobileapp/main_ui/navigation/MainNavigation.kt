@@ -29,6 +29,7 @@ fun MainNavigation(controllersModule: ControllersModule) {
     val isUserLoggedIn = false
 
 
+
     LaunchedEffect(Unit) {
         delay(1000)
         if (isUserLoggedIn) {
@@ -59,14 +60,16 @@ fun MainNavigation(controllersModule: ControllersModule) {
             MainScreen(navController)
         }
         composable(Routes.NavBar.Search.route) {
-            SearchScreen(navController,controllersModule.provideSearchController())
+            SearchScreen(navController,controllersModule.provideSearchController(),controllersModule.provideMusicPlayerService(),controllersModule.provideSelectedTrackItem(),controllersModule.provideMusicPlayerController())
         }
         composable(Routes.NavBar.Home.route) {
             HomeScreen(navController,controllersModule.providePlaylistController())
         }
-        composable(Routes.MusicPlayerScreen.route)
-        {
-            MusicPlayerScreen(navController,controllersModule.provideMusicPlayerController(),controllersModule.provideExoPLayer())
+        composable(route = Routes.MusicPlayerScreen.route + "/{trackId}",
+            arguments = listOf(navArgument("trackId"){type = NavType.StringType})
+        ) { backStackEntry ->
+            val trackId = backStackEntry.arguments?.getString("trackId")
+            MusicPlayerScreen(navController,controllersModule.provideMusicPlayerController(),controllersModule.provideExoPLayer(),trackId?: "",controllersModule.provideMusicPlayerService())
         }
         composable(route = Routes.AlbumScreen.route + "/{albumId}",
             arguments = listOf(navArgument("albumId") { type = NavType.StringType })
