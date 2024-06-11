@@ -13,7 +13,9 @@ data class SearchScreenModel(
     val title: String,
     val titleID: Long,
     val artistName: String,
-    val imagePath: String
+    val imagePath: String,
+    val album_id: Int?,
+    val artist_id: Int
 
 )
 
@@ -35,6 +37,8 @@ data class SearchScreenModel(
                 mappedData.add(
                     SearchScreenModel(
                         id = am.id,
+                        album_id = null,
+                        artist_id = am.id,
                         name = am.name,
                         title = Title.ARTIST,
                         titleID = Title.ARTISTIDTITLE,
@@ -50,6 +54,8 @@ data class SearchScreenModel(
                 mappedData.add(
                     SearchScreenModel(
                         id = al.id,
+                        album_id = null,
+                        artist_id = al.artistId,
                         name = al.name,
                         title = Title.ALBUM,
                         titleID = Title.ALBUMIDTITLE,
@@ -63,6 +69,8 @@ data class SearchScreenModel(
                 mappedData.add(
                     SearchScreenModel(
                         id = t.id,
+                        album_id = t.album_id,
+                        artist_id = t.artist_id,
                         name = t.name,
                         title = Title.TRACK,
                         titleID = Title.TRACKIDTITLE,

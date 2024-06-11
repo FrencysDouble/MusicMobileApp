@@ -77,7 +77,7 @@ fun SearchScreen(
     {
         MoreDialog.BottomSheet(onDismissRequest = {
             controller.dialogDisable()
-        })
+        },controller,selectItem,navController)
     }
 
     Scaffold(
@@ -277,7 +277,11 @@ fun MainListItem(
                             contentAlignment = Alignment.CenterEnd
                         )
                         {
-                            IconButton(onClick = {controller.dialogActive()}) {
+                            IconButton(onClick =
+                            {
+                                controller.dialogActive()
+                                selectItem.setSelectedDialogItemId(item.id)
+                            }) {
                                 Image(
                                     painter = painterResource(id = R.drawable.al_more),
                                     contentDescription = ""
@@ -302,3 +306,6 @@ fun loadImage(url: String, modifier: Modifier = Modifier) {
         }
     )
 }
+
+
+

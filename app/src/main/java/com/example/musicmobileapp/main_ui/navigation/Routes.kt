@@ -42,7 +42,11 @@ object Routes {
 
     object PlaylistScreen : Screen("playlist/{playlistId}")
 
+    object PlaylistChooseScreen : Screen("choosePlaylist/{trackId}")
+
     object BottomMusicPlayer : Screen("bottomMusicPlayer")
+
+    object MoreDialog : Screen("moreDialog")
 }
 
 

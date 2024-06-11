@@ -34,5 +34,6 @@ object ApiRoutes {
     const val PLAYLISTGETALL = "playlist/getAll/{id}"
     const val PLAYLISTGETBYID = "playlist/get/{id}"
     const val PLAYLISTADDTRACK = "playlist/addTrack"
+    const val PLAYLISTADDTRACKS = "playlist/addTracks"
 
 }

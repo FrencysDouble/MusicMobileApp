@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.example.musicmobileapp.di.ControllersModule
 import com.example.musicmobileapp.main_ui.AlbumScreen
 import com.example.musicmobileapp.main_ui.AuthScreen
+import com.example.musicmobileapp.main_ui.ChooseScreen
 import com.example.musicmobileapp.main_ui.HomeScreen
 import com.example.musicmobileapp.main_ui.LoadingScreen
 import com.example.musicmobileapp.main_ui.MainScreen
@@ -88,6 +89,14 @@ fun MainNavigation(controllersModule: ControllersModule) {
             val playlistId = backStackEntry.arguments?.getString("playlistId")
             PlaylistScreen(navController,playlistId,controllersModule.providePlaylistController())
         }
+
+        composable(route = Routes.PlaylistChooseScreen.route + "/{trackId}",
+            arguments = listOf(navArgument("trackId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val trackId = backStackEntry.arguments?.getString("trackId")
+            ChooseScreen(navController, trackId ?: "",controllersModule.providePlaylistController())
+        }
+
     }
 }
 

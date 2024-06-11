@@ -133,6 +133,14 @@ class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,Mus
             emit(response)
         }
 
+    override suspend fun addTrackPlaylist(idList: List<Long>, trackId: Long) : Flow<ApiResponse<ResponseBody>> =
+        flow {
+            val response = handleApiResponse(
+                call = {playlistApi.addTrackPlaylists(idList,trackId)}
+            )
+            emit(response)
+        }
+
     override suspend fun getAllByCreator(id: Long): Flow<ApiResponse<List<PlaylistScreenModel>>> =
         flow {
             val response = handleApiResponse (
@@ -182,6 +190,8 @@ interface PlaylistApiInterface
     suspend fun createPlaylist(playlistDTO: PlaylistDTO) : Flow<ApiResponse<ResponseBody>>
 
     suspend fun addTrackPlaylist(id: Long,trackId : Long) : Flow<ApiResponse<ResponseBody>>
+
+    suspend fun addTrackPlaylist(idList: List<Long>,trackId : Long) : Flow<ApiResponse<ResponseBody>>
 
     suspend fun getAllByCreator(id: Long) : Flow<ApiResponse<List<PlaylistScreenModel>>>
 

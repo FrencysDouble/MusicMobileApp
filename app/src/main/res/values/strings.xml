@@ -26,5 +26,7 @@
     <string name="home_screen_playlist">Плейлисты</string>
     <string name="home_screen_albums">Альбомы</string>
 
+    <string name="pl_creation_title">Добавить в плейлист</string>
+
 
 </resources>

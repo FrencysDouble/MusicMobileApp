@@ -10,6 +10,7 @@ import com.example.musicmobileapp.network.PlaylistApiInterface
 import com.example.musicmobileapp.network.api.ApiResponse
 import com.example.musicmobileapp.security.UserSecurityManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -89,6 +90,33 @@ class PlaylistController(
                         {
                             TODO()
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    fun addTrackToPlaylist(idList : List<Long>,trackId : Long)
+    {
+        viewModelScope.launch {
+            playlistApiInterface.addTrackPlaylist(idList, trackId).collect { response ->
+                withContext(Dispatchers.Main)
+                {
+                    when(response)
+                    {
+                        is ApiResponse.Success ->
+                        {
+                            Log.d("Success",response.data.toString())
+                        }
+                        is ApiResponse.Error ->
+                        {
+                            Log.d("PlaylistController",response.errorMessage)
+                        }
+                        is ApiResponse.Loading ->
+                        {
+                            TODO()
+                        }
+
                     }
                 }
             }

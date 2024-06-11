@@ -1,6 +1,6 @@
 package com.example.musicmobileapp.main_ui
 
-import androidx.compose.foundation.Image
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,15 +20,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.musicmobileapp.R
+import com.example.musicmobileapp.controllers.SearchScreenController
+import com.example.musicmobileapp.main_ui.navigation.Routes
+import com.example.musicmobileapp.models.Title
+import com.example.musicmobileapp.models.screens.SearchScreenModel
+import com.example.musicmobileapp.network.service.SelectedTrackItem
 import com.example.musicmobileapp.ui.theme.mainBackground
 import com.example.musicmobileapp.ui.theme.textSecondary
 
@@ -37,14 +43,26 @@ object MoreDialog {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun BottomSheet(onDismissRequest: () -> Unit) {
-        ModalBottomSheet(onDismissRequest = { onDismissRequest.invoke()}, containerColor = mainBackground,) {
-            dialog()
+    fun BottomSheet(
+        onDismissRequest: () -> Unit,
+        controller: SearchScreenController,
+        selectItem: SelectedTrackItem,
+        navController: NavHostController
+    ) {
+        val searchList by controller.liveSearchData.observeAsState()
+
+
+        val item = searchItem(searchList,selectItem)
+
+
+        ModalBottomSheet(onDismissRequest = { onDismissRequest.invoke()}, containerColor = mainBackground) {
+
+            dialog(item,navController)
         }
     }
 
     @Composable
-    fun dialog() {
+    fun dialog(item: Pair<SearchScreenModel, SearchScreenModel>, navController: NavHostController) {
         Column(
             Modifier
                 .fillMaxWidth()
@@ -54,38 +72,42 @@ object MoreDialog {
                 Modifier
                     .fillMaxWidth()
                     .padding(bottom = 12.dp)) {
-                upperDialog()
+                upperDialog(item.first,item.second)
             }
             HorizontalDivider(
                 Modifier
                     .height(1.dp)
                     .fillMaxWidth())
-            ButtonList()
+            ButtonList(navController,item.second,item.first)
         }
     }
 }
 
 @Composable
-fun upperDialog()
+fun upperDialog(trackItem: SearchScreenModel, albumItem: SearchScreenModel)
 {
-    Image(painter = painterResource(id = R.drawable.photo), contentDescription ="",
+    loadImage(url = trackItem.imageUrl,
         Modifier
             .size(50.dp)
             .clip(
                 RoundedCornerShape(8.dp)
             ))
     Column(Modifier.padding(start = 8.dp)) {
-        Text(text = "Trance .....", fontSize = 24.sp)
+        Text(text = trackItem.name, fontSize = 24.sp)
         Row(Modifier.fillMaxWidth()) {
-            Text(text = "Metro Boomin",color = textSecondary, fontSize = 16.sp)
+            Text(text = trackItem.artistName,color = textSecondary, fontSize = 16.sp)
             Text(text = "  •  ", color = textSecondary, fontSize = 16.sp)
-            Text(text = "Album Name", color = textSecondary, fontSize = 16.sp)
+            Text(text = albumItem.name, color = textSecondary, fontSize = 16.sp)
         }
     }
 }
 
 @Composable
-fun ButtonList() {
+fun ButtonList(
+    navController: NavHostController,
+    albumItem: SearchScreenModel,
+    trackItem: SearchScreenModel
+) {
     Box(modifier = Modifier.wrapContentSize().padding(top = 12.dp))
     {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(24.dp)) {
@@ -93,7 +115,7 @@ fun ButtonList() {
                 ItemButtons(
                     imgId = R.drawable.dialog_add,
                     textId = R.string.dialog_add_playlist,
-                    onClick = {}
+                    onClick = {navController.navigate("${Routes.PlaylistChooseScreen.route}/${trackItem.id}")}
                 )
             }
             item {
@@ -107,7 +129,7 @@ fun ButtonList() {
                 ItemButtons(
                     imgId = R.drawable.dialog_album,
                     textId = R.string.dialog_go_album,
-                    onClick = {}
+                    onClick = {navController.navigate("${Routes.AlbumScreen.route}/${albumItem.id}")}
                 )
             }
             item {
@@ -131,10 +153,35 @@ fun ItemButtons(imgId: Int, textId: Int,onClick: () -> Unit)
 }
 
 
+fun searchItem(searchList: List<SearchScreenModel>?, selectItem: SelectedTrackItem): Pair<SearchScreenModel, SearchScreenModel> {
 
-@Composable
-@Preview
-fun preview()
-{
-    MoreDialog.dialog()
+    val itemTrack = searchTrackItem(searchList,selectItem)
+
+    searchList?.forEach{ itemAlbum ->
+        if (itemAlbum.titleID == Title.ALBUMIDTITLE)
+        {
+            if (itemAlbum.id == itemTrack.album_id)
+            {
+                return Pair(itemTrack,itemAlbum)
+            }
+        }
+
+    }
+
+    throw NoSuchElementException("No item found with id: ${selectItem.selectedDialogItemId.value}")
+
 }
+
+fun searchTrackItem(searchList: List<SearchScreenModel>?, selectItem: SelectedTrackItem) : SearchScreenModel {
+    searchList?.forEach { item ->
+        if (item.titleID == Title.TRACKIDTITLE) {
+            if (item.id == selectItem.selectedDialogItemId.value) {
+                Log.d("Track Item", "$item")
+                return item
+            }
+        }
+    }
+    throw NoSuchElementException("No item found with id: ${selectItem.selectedDialogItemId.value}")
+}
+
+

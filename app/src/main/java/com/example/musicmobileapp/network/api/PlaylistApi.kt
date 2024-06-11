@@ -23,6 +23,8 @@ class PlaylistApi(private val retrofit: Retrofit) {
 
     suspend fun getByPlaylistId(playlistId : Long) : Response<PlaylistScreenModel> = service.getById(playlistId)
 
+    suspend fun addTrackPlaylists(idList: List<Long>,trackId: Long) : Response<ResponseBody> = service.addTrackPlaylists(idList,trackId)
+
 }
 
 interface PlaylistApiPoints
@@ -36,6 +38,12 @@ interface PlaylistApiPoints
     @POST(ApiRoutes.PLAYLISTADDTRACK)
     suspend fun addTrackPlaylist(
         @Query("playlistId") id : Long,
+        @Query("trackId") trackId : Long
+    ): Response<ResponseBody>
+
+    @POST(ApiRoutes.PLAYLISTADDTRACKS)
+    suspend fun addTrackPlaylists(
+        @Query("playlistId") id : List<Long>,
         @Query("trackId") trackId : Long
     ): Response<ResponseBody>
 

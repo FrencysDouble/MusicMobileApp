@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.media3.exoplayer.ExoPlayer
 import com.example.musicmobileapp.controllers.AlbumController
 import com.example.musicmobileapp.controllers.AuthController
+import com.example.musicmobileapp.controllers.MoreDialogController
 import com.example.musicmobileapp.controllers.MusicPlayerController
 import com.example.musicmobileapp.controllers.PlaylistController
 import com.example.musicmobileapp.controllers.SearchScreenController
@@ -52,6 +53,9 @@ interface ControllersModule {
 
     @Provide(cache = Provide.CacheType.Soft)
     fun provideSelectedTrackItem() : SelectedTrackItem
+
+    @Provide(cache = Provide.CacheType.Soft)
+    fun provideMoreDialogController(musicApiInterface: MusicApiInterface,selectedTrackItem: SelectedTrackItem): MoreDialogController
 
 }
 
