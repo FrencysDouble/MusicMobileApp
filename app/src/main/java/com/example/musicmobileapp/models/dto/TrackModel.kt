@@ -11,7 +11,8 @@ data class TrackModel(
     @Json(name = "image_path")
     val imagePath : String,
     val album_id : Int,
-    val artist_id : Int
+    val artist_id : Int,
+    val album_name : String
 ) {
     val imageUrl: String
         get() = "${ApiRoutes.BASE_FILE_URL}/getIMG?path=${imagePath.replace("\\", "/")}"

@@ -8,6 +8,7 @@ import com.example.musicmobileapp.models.dto.UserDTO
 import com.example.musicmobileapp.models.screens.SearchScreenModel
 import com.example.musicmobileapp.models.dto.UserModel
 import com.example.musicmobileapp.models.screens.AlbumScreenModel
+import com.example.musicmobileapp.models.screens.ArtistScreenModel
 import com.example.musicmobileapp.models.screens.PlaylistScreenModel
 import com.example.musicmobileapp.network.api.AlbumApi
 import com.example.musicmobileapp.network.api.ApiResponse
@@ -22,7 +23,7 @@ import kotlinx.coroutines.flow.flow
 import okhttp3.ResponseBody
 import java.io.InputStream
 
-class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,MusicApiInterface,SearchApiInterface,AlbumApiInterface,PlaylistApiInterface {
+class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,MusicApiInterface,SearchApiInterface,AlbumApiInterface,PlaylistApiInterface,ArtistApiInterface {
 
     private val authApi: AuthApi
         get() = apiModule.provideAuthApi()
@@ -46,7 +47,7 @@ class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,Mus
         return when (val response = call()) {
             is ApiResponse.Success -> response.data
             is ApiResponse.Error -> {
-                Log.d("MainApiController", response.errorMessage)
+                Log.d("MainApiController", "Error: ${response.errorMessage}")
                 throw Exception(response.errorMessage)
             }
             is ApiResponse.Loading -> {
@@ -151,13 +152,29 @@ class MainAPIController(private val apiModule: ApiModule) : AuthApiInterface,Mus
         }
 
     override suspend fun getByPlaylistId(id: Long): Flow<ApiResponse<PlaylistScreenModel>> =
-    flow {
-        val response = handleApiResponse (
-            call = {playlistApi.getByPlaylistId(id)},
-            map = {PlaylistScreenModel.mapOne(it)}
-        )
-        emit(response)
+        flow {
+            val response = handleApiResponse (
+                call = {playlistApi.getByPlaylistId(id)},
+                map = {PlaylistScreenModel.mapOne(it)}
+            )
+            emit(response)
     }
+
+    override suspend fun getArtistData(id: Long): Flow<ApiResponse<ArtistScreenModel>> =
+        flow {
+            try {
+                val artist = responseCheck(call = { artistApi.getById(id) })
+                val albums = responseCheck(call = { albumApi.getByArtistId(id) })
+                val tracks = responseCheck(call = { musicApi.getByArtistId(id) })
+                emit(ApiResponse.Success(ArtistScreenModel.map(artist,albums, tracks)))
+            }
+            catch (e: NullPointerException)
+            {
+                e.printStackTrace()
+                emit(ApiResponse.Error(e.message ?: "Artist"))
+            }
+
+        }
 }
 
 
@@ -196,4 +213,9 @@ interface PlaylistApiInterface
     suspend fun getAllByCreator(id: Long) : Flow<ApiResponse<List<PlaylistScreenModel>>>
 
     suspend fun getByPlaylistId(id : Long) : Flow<ApiResponse<PlaylistScreenModel>>
+}
+
+interface ArtistApiInterface
+{
+    suspend fun getArtistData(id: Long) : Flow<ApiResponse<ArtistScreenModel>>
 }

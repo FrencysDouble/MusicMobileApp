@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -44,12 +42,10 @@ import androidx.media3.ui.DefaultTimeBar
 import androidx.media3.ui.TimeBar
 import androidx.navigation.NavHostController
 import com.example.musicmobileapp.R
+import com.example.musicmobileapp.controllers.MoreDialogController
 import com.example.musicmobileapp.controllers.MusicPlayerController
 import com.example.musicmobileapp.network.service.MusicInterface
 import com.example.musicmobileapp.ui.theme.mainBackground
-import com.example.musicmobileapp.ui.theme.mainBackgroundAccent
-import com.example.musicmobileapp.ui.theme.mainPrimary
-import com.example.musicmobileapp.ui.theme.textPrimary
 import com.example.musicmobileapp.ui.theme.textSecondary
 import kotlinx.coroutines.delay
 
@@ -60,7 +56,8 @@ fun MusicPlayerScreen(
     controller: MusicPlayerController,
     player: ExoPlayer,
     trackId: String?,
-    musicService: MusicInterface
+    musicService: MusicInterface,
+    provideMoreDialogController: MoreDialogController
 )
 
 {

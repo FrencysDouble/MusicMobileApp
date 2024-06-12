@@ -16,10 +16,15 @@ object ImageLoading {
     fun loadImage(
         url: String,
         modifier: Modifier = Modifier,
-        context: Context) {
+        context: Context
+    ) {
         AndroidView(
             modifier = modifier,
-            factory = { ImageView(context) },
+            factory = { context ->
+                ImageView(context).apply {
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                }
+            },
             update = { imageView ->
                 Glide.with(context)
                     .load(url)

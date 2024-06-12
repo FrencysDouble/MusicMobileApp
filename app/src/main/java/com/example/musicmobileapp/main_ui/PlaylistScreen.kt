@@ -163,8 +163,8 @@ fun AlbumItemList(track : TrackModel)
 {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(text = track.id.toString(),Modifier.padding(end = 12.dp))
-        Log.d("AlbumList",track.imagePath)
-        loadImage(url = track.imagePath,
+        Log.d("AlbumList",track.imageUrl)
+        loadImage(url = track.imageUrl,
             Modifier
                 .size(44.dp)
                 .clip(

@@ -1,6 +1,7 @@
 package com.example.musicmobileapp.main_ui
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.ImageView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,10 +28,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,6 +51,7 @@ import androidx.navigation.NavHostController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicmobileapp.R
+import com.example.musicmobileapp.controllers.MoreDialogController
 import com.example.musicmobileapp.controllers.MusicPlayerController
 import com.example.musicmobileapp.controllers.SearchScreenController
 import com.example.musicmobileapp.main_ui.navigation.BottomNavigationBar
@@ -65,19 +71,26 @@ import com.example.musicmobileapp.ui.theme.textSecondary
 fun SearchScreen(
     navController: NavHostController,
     controller: SearchScreenController,
+    moreDialogController: MoreDialogController,
     musicService: MusicInterface,
     selectItem: SelectedTrackItem,
     musicController: MusicPlayerController
 ) {
-    val isDialogShow by remember { mutableStateOf(controller.isDialogShow) }
+
+    val isSearchBarActive by rememberSaveable { controller.isNotActive }
+    Log.d("SearchBar",isSearchBarActive.toString())
+    val isDialogShow by remember { derivedStateOf { controller.isDialogShow } }
     val searchList by controller.liveSearchData.observeAsState()
 
+    DisposableEffect(Unit) {
+        onDispose { controller.dialogDisable() }
+    }
 
     if(isDialogShow.value)
     {
         MoreDialog.BottomSheet(onDismissRequest = {
             controller.dialogDisable()
-        },controller,selectItem,navController)
+        },moreDialogController,navController)
     }
 
     Scaffold(
@@ -88,7 +101,7 @@ fun SearchScreen(
                 BottomNavigationBar(navController = navController)
             }
         }) {
-        Screen(searchList!!, controller, navController,selectItem)
+        Screen(searchList!!, controller, navController,selectItem,isSearchBarActive)
     }
 
 }
@@ -102,9 +115,9 @@ fun Screen(
     controller: SearchScreenController,
     navController: NavHostController,
     selectItem: SelectedTrackItem,
+    isSearchBarActive : Boolean
 )
 {
-    val isSearchBarActive by controller.isNotActive
     Column(
         Modifier
             .fillMaxSize()
@@ -122,9 +135,9 @@ fun Screen(
 @Composable
 fun SearchField(controller: SearchScreenController)
 {
-    val searchQuery = remember { mutableStateOf(TextFieldValue()) }
-    if (!searchQuery.value.text.isEmpty()) {
-        controller.dataLoad(searchQuery.value.text)
+    val searchQuery = rememberSaveable { mutableStateOf("") }
+    if (!searchQuery.value.isEmpty()) {
+        controller.dataLoad(searchQuery.value)
         controller.searchBarActive()
     }
     else{
@@ -149,7 +162,7 @@ fun SearchField(controller: SearchScreenController)
                     .fillMaxWidth(),
                     contentAlignment = Alignment.CenterStart)
                 {
-                if (searchQuery.value.text.isEmpty()) {
+                if (searchQuery.value.isEmpty()) {
                         Text(
                             text = stringResource(id = R.string.screen_search_hint_search),
                             color = textSecondary,
@@ -246,7 +259,7 @@ fun MainListItem(
             .height(50.dp)
             .clickable {
                 when (item.titleID) {
-                    Title.ARTISTIDTITLE -> TODO("Not yet implemented")
+                    Title.ARTISTIDTITLE -> navController.navigate("${Routes.ArtistScreen.route}/${item.artist_id}")
                     Title.ALBUMIDTITLE -> navController.navigate("${Routes.AlbumScreen.route}/${item.id}")
                     Title.TRACKIDTITLE -> {
                         navController.navigate("${Routes.MusicPlayerScreen.route}/${item.id}")

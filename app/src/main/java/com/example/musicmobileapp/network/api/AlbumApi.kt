@@ -15,6 +15,8 @@ class AlbumApi(private val retrofit: Retrofit) {
 
     suspend fun getById(id: Long): ApiResponse<AlbumModel> = handleApiResponse (call ={ service.findById(id)})
 
+    suspend fun getByArtistId(id : Long) : ApiResponse<List<AlbumModel>> = handleApiResponse(call = {service.findByArtistId(id)})
+
 }
 
 
@@ -30,4 +32,11 @@ interface AlbumApiPoints {
     suspend fun findById(
         @Path("id") id : Long
     ): Response<AlbumModel>
+
+    @GET(ApiRoutes.ALBUMGETBYARTISTID)
+    suspend fun findByArtistId(
+        @Path("id") id : Long
+    ): Response<List<AlbumModel>>
+
+
 }

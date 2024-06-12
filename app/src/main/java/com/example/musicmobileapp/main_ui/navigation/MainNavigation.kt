@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.musicmobileapp.di.ControllersModule
 import com.example.musicmobileapp.main_ui.AlbumScreen
+import com.example.musicmobileapp.main_ui.ArtistScreen
 import com.example.musicmobileapp.main_ui.AuthScreen
 import com.example.musicmobileapp.main_ui.ChooseScreen
 import com.example.musicmobileapp.main_ui.HomeScreen
@@ -61,7 +62,7 @@ fun MainNavigation(controllersModule: ControllersModule) {
             MainScreen(navController)
         }
         composable(Routes.NavBar.Search.route) {
-            SearchScreen(navController,controllersModule.provideSearchController(),controllersModule.provideMusicPlayerService(),controllersModule.provideSelectedTrackItem(),controllersModule.provideMusicPlayerController())
+            SearchScreen(navController,controllersModule.provideSearchController(),controllersModule.provideMoreDialogController(),controllersModule.provideMusicPlayerService(),controllersModule.provideSelectedTrackItem(),controllersModule.provideMusicPlayerController())
         }
         composable(Routes.NavBar.Home.route) {
             HomeScreen(navController,controllersModule.providePlaylistController())
@@ -70,7 +71,7 @@ fun MainNavigation(controllersModule: ControllersModule) {
             arguments = listOf(navArgument("trackId"){type = NavType.StringType})
         ) { backStackEntry ->
             val trackId = backStackEntry.arguments?.getString("trackId")
-            MusicPlayerScreen(navController,controllersModule.provideMusicPlayerController(),controllersModule.provideExoPLayer(),trackId?: "",controllersModule.provideMusicPlayerService())
+            MusicPlayerScreen(navController,controllersModule.provideMusicPlayerController(),controllersModule.provideExoPLayer(),trackId?: "",controllersModule.provideMusicPlayerService(),controllersModule.provideMoreDialogController())
         }
         composable(route = Routes.AlbumScreen.route + "/{albumId}",
             arguments = listOf(navArgument("albumId") { type = NavType.StringType })
@@ -95,6 +96,12 @@ fun MainNavigation(controllersModule: ControllersModule) {
         ) { backStackEntry ->
             val trackId = backStackEntry.arguments?.getString("trackId")
             ChooseScreen(navController, trackId ?: "",controllersModule.providePlaylistController())
+        }
+        composable(route = Routes.ArtistScreen.route + "/{artistId}",
+            arguments = listOf(navArgument("artistId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val artistId = backStackEntry.arguments?.getString("artistId")
+            ArtistScreen(navController, artistId ?: "",controllersModule.provideArtistController())
         }
 
     }

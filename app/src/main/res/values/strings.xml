@@ -27,6 +27,9 @@
     <string name="home_screen_albums">Альбомы</string>
 
     <string name="pl_creation_title">Добавить в плейлист</string>
+    <string name="artist_screen_sbs_btn">Подписаться</string>
+    <string name="artist_screen_popular">Популярное</string>
+    <string name="artist_screen_release">Популярные релизы</string>
 
 
 </resources>

@@ -3,12 +3,14 @@ package com.example.musicmobileapp.di
 import android.content.Context
 import androidx.media3.exoplayer.ExoPlayer
 import com.example.musicmobileapp.controllers.AlbumController
+import com.example.musicmobileapp.controllers.ArtistController
 import com.example.musicmobileapp.controllers.AuthController
 import com.example.musicmobileapp.controllers.MoreDialogController
 import com.example.musicmobileapp.controllers.MusicPlayerController
 import com.example.musicmobileapp.controllers.PlaylistController
 import com.example.musicmobileapp.controllers.SearchScreenController
 import com.example.musicmobileapp.network.AlbumApiInterface
+import com.example.musicmobileapp.network.ArtistApiInterface
 import com.example.musicmobileapp.network.AuthApiInterface
 import com.example.musicmobileapp.network.MainAPIController
 import com.example.musicmobileapp.network.MusicApiInterface
@@ -55,7 +57,10 @@ interface ControllersModule {
     fun provideSelectedTrackItem() : SelectedTrackItem
 
     @Provide(cache = Provide.CacheType.Soft)
-    fun provideMoreDialogController(musicApiInterface: MusicApiInterface,selectedTrackItem: SelectedTrackItem): MoreDialogController
+    fun provideMoreDialogController(musicApiInterface: MusicApiInterface = mApiController(),selectedTrackItem: SelectedTrackItem = provideSelectedTrackItem()): MoreDialogController
+
+    @Provide(cache = Provide.CacheType.Soft)
+    fun provideArtistController(artistApiInterface: ArtistApiInterface = mApiController()) : ArtistController
 
 }
 

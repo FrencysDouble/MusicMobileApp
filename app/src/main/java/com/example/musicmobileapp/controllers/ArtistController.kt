@@ -4,34 +4,29 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.musicmobileapp.models.dto.TrackModel
-import com.example.musicmobileapp.models.screens.SearchScreenModel
-import com.example.musicmobileapp.network.MusicApiInterface
+import com.example.musicmobileapp.models.screens.ArtistScreenModel
+import com.example.musicmobileapp.network.ArtistApiInterface
 import com.example.musicmobileapp.network.api.ApiResponse
-import com.example.musicmobileapp.network.service.SelectedTrackItem
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MoreDialogController(
-    private val musicApiInterface: MusicApiInterface,
-    private val selectedTrackItem: SelectedTrackItem
-) : ViewModel() {
+class ArtistController(
+    private val artistApiInterface: ArtistApiInterface
+): ViewModel() {
 
-    val liveDialogData: MutableLiveData<TrackModel> = MutableLiveData()
+    val liveArtistData: MutableLiveData<ArtistScreenModel> = MutableLiveData()
 
-    fun dataLoad()
+
+    fun dataLoad(id : Long)
     {
-        val id = selectedTrackItem.selectedDialogItemId.value
         viewModelScope.launch {
-            id?.let { musicApiInterface.getById(it.toLong()) }?.collect{response ->
+            artistApiInterface.getArtistData(id).collect {response ->
                 withContext(Dispatchers.Main)
                 {
-                    when(response)
-                    {
+                    when (response) {
                         is ApiResponse.Success -> {
-                            liveDialogData.value = response.data
+                            liveArtistData.value = response.data
                         }
                         is ApiResponse.Error -> {
                             Log.e("SearchScreenController", "Error: ${response.errorMessage}")
@@ -40,9 +35,12 @@ class MoreDialogController(
                             Log.d("SearchScreenController", "Loading...")
                         }
 
+                        else -> {}
                     }
                 }
             }
+
         }
     }
+
 }

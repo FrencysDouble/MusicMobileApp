@@ -17,9 +17,11 @@ class MusicApi(private val retrofit: Retrofit) {
 
     suspend fun streamMusic(id: Long): InputStream = service.streamMusic(id).byteStream()
 
-    suspend fun getByName(name: String): ApiResponse<List<TrackModel>> = handleApiResponse (call = {service.findByName(name)})
+    suspend fun getByName(name: String): ApiResponse<List<TrackModel>> = handleApiResponse (call = {service.findByName(name) })
 
     suspend fun getById(id: Long): Response<TrackModel> = service.findById(id)
+
+    suspend fun getByArtistId(id: Long): ApiResponse<List<TrackModel>> = handleApiResponse (call = {service.findByArtistId(id) })
 
 }
 
@@ -37,9 +39,16 @@ interface MusicApiPoints
         @Query("name") name : String
     ): Response<List<TrackModel>>
 
+    @GET(ApiRoutes.TRACKGETBYARTISTID)
+    suspend fun findByArtistId(
+        @Path("id") id : Long
+    ): Response<List<TrackModel>>
+
 
     @GET(ApiRoutes.TRACKGETID)
     suspend fun findById(
         @Path("id") id : Long
     ): Response<TrackModel>
+
+
 }
