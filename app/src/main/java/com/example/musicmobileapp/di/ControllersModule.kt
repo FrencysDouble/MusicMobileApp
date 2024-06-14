@@ -62,6 +62,8 @@ interface ControllersModule {
     @Provide(cache = Provide.CacheType.Soft)
     fun provideArtistController(artistApiInterface: ArtistApiInterface = mApiController()) : ArtistController
 
+
+
 }
 
 

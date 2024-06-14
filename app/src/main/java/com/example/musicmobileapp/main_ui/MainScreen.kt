@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,26 +12,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.musicmobileapp.R
+import com.example.musicmobileapp.controllers.ArtistController
+import com.example.musicmobileapp.controllers.PlaylistController
 import com.example.musicmobileapp.main_ui.navigation.BottomNavigationBar
-import com.example.musicmobileapp.main_ui.navigation.Routes
-import com.example.musicmobileapp.models.screens.AlbumScreenModel
+import com.example.musicmobileapp.models.dto.AlbumModel
+import com.example.musicmobileapp.models.screens.ArtistScreenModel
+import com.example.musicmobileapp.models.screens.PlaylistScreenModel
 import com.example.musicmobileapp.ui.theme.mainBackground
 import com.example.musicmobileapp.ui.theme.textPrimary
 import com.example.musicmobileapp.ui.theme.textSecondary
@@ -41,18 +42,25 @@ import com.example.musicmobileapp.ui.theme.textSecondary
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavHostController)
+fun MainScreen(
+    navController: NavHostController,
+    controller: PlaylistController,
+    artistController: ArtistController
+)
 {
 
+    val playlistData by controller.livePlaylistDataList.observeAsState()
+
+    val artistData by artistController.liveArtistData.observeAsState()
+
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = { BottomNavigationBar(navController = navController) }) {
-        Screen()
+       Screen(data = playlistData,artistData)
     }
 
 }
 
 @Composable
-@Preview
-fun Screen()
+fun Screen(data: List<PlaylistScreenModel>?, artistData: ArtistScreenModel?)
 {
     Column(
         Modifier
@@ -70,8 +78,8 @@ fun Screen()
                 fontSize = 24.sp
             )
 
-            PlaylistLazyList()
-            AlbumLazyList()
+            data?.let { PlaylistLazyList(it) }
+            artistData?.let { AlbumLazyList(it) }
         }
 
     }
@@ -80,7 +88,7 @@ fun Screen()
 
 
 @Composable
-fun PlaylistLazyList()
+fun PlaylistLazyList(data: List<PlaylistScreenModel>)
 {
     Column(
         Modifier
@@ -91,9 +99,10 @@ fun PlaylistLazyList()
         LazyRow(horizontalArrangement = Arrangement.spacedBy(24.dp),
             modifier = Modifier.padding(top = 24.dp))
         {
-            items(10)
-            {
-                HomeScreenListItem()
+            data.let { data ->
+                items(data) {data ->
+                    HomeScreenListItem(data)
+                }
             }
         }
 
@@ -103,42 +112,67 @@ fun PlaylistLazyList()
 
 
 @Composable
-@Preview
-fun HomeScreenListItem()
+fun HomeScreenListItem(data: PlaylistScreenModel)
 {
     Column(
         Modifier
             .wrapContentSize()
             .background(mainBackground),) {
 
-        Image(painter = painterResource(id = R.drawable.photo), contentDescription = "",
+        loadImage(url = data.imageUrl,
             Modifier
                 .width(125.dp)
                 .height(150.dp)
                 .clip(RoundedCornerShape(16.dp)))
 
         Column(Modifier.padding(top = 12.dp)) {
-            Text(text = "Заголовок", color = textPrimary, fontSize = 16.sp)
-            Text(text = "Подзаголовок", color = textSecondary, fontSize = 12.sp)
+            Text(text = data.name, color = textPrimary, fontSize = 16.sp)
+            Text(text = "Плейлист", color = textSecondary, fontSize = 12.sp)
         }
     }
 
 }
 
 @Composable
-fun AlbumLazyList()
+fun AlbumLazyList(artistData: ArtistScreenModel)
 {
-    Column(Modifier.fillMaxWidth().padding(top = 24.dp)) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 24.dp)) {
         Text(text = stringResource(id = R.string.home_screen_albums), color = textPrimary, fontSize = 16.sp)
         LazyRow(horizontalArrangement = Arrangement.spacedBy(24.dp),
             modifier = Modifier.padding(top = 24.dp))
         {
-            items(10)
-            {
-                HomeScreenListItem()
+            artistData.let { data ->
+                items(data.albums) {dataAlbum ->
+                    HomeScreenAlbumListItem(dataAlbum)
+                }
             }
         }
 
+    }
+
+}
+
+@Composable
+fun HomeScreenAlbumListItem(data: AlbumModel)
+{
+    Column(
+        Modifier
+            .wrapContentSize()
+            .background(mainBackground),) {
+
+        loadImage(url = data.imageUrl,
+            Modifier
+                .width(125.dp)
+                .height(150.dp)
+                .clip(RoundedCornerShape(16.dp)))
+
+        Column(Modifier.padding(top = 12.dp)) {
+            Text(text = data.name, color = textPrimary, fontSize = 16.sp)
+            Text(text = "Альбом", color = textSecondary, fontSize = 12.sp)
+        }
     }
 
 }

@@ -38,28 +38,4 @@ suspend fun <T> handleApiResponse(
     }
 }
 
-suspend fun <T, R> handleMultipleApiResponses(
-    calls: List<suspend () -> Response<T>>,
-    map: (List<T>) -> R
-): ApiResponse<R> {
-    return try {
-        val results = mutableListOf<T>()
-
-        for (call in calls) {
-            val response = call()
-            if (response.isSuccessful) {
-                response.body()?.let {
-                    results.add(it)
-                } ?: return ApiResponse.Error("Empty body", response.code())
-            } else {
-                return ApiResponse.Error("API call failed with error: ${response.message()}", response.code())
-            }
-        }
-
-        ApiResponse.Success(map(results))
-    } catch (e: Exception) {
-        ApiResponse.Error("Exception occurred: ${e.message}")
-    }
-}
-
 

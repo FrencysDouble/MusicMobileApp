@@ -59,7 +59,7 @@ fun MainNavigation(controllersModule: ControllersModule) {
             AuthScreen(navController,controllersModule.provideAuthController())
         }
         composable(Routes.NavBar.Main.route) {
-            MainScreen(navController)
+            MainScreen(navController,controllersModule.providePlaylistController(),controllersModule.provideArtistController() )
         }
         composable(Routes.NavBar.Search.route) {
             SearchScreen(navController,controllersModule.provideSearchController(),controllersModule.provideMoreDialogController(),controllersModule.provideMusicPlayerService(),controllersModule.provideSelectedTrackItem(),controllersModule.provideMusicPlayerController())

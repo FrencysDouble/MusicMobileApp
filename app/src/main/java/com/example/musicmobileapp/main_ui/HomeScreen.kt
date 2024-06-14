@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.musicmobileapp.R
+import com.example.musicmobileapp.controllers.AlbumController
 import com.example.musicmobileapp.controllers.PlaylistController
 import com.example.musicmobileapp.main_ui.navigation.BottomNavigationBar
 import com.example.musicmobileapp.main_ui.navigation.Routes
@@ -42,7 +43,10 @@ import com.example.musicmobileapp.ui.theme.mainPrimary
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(navController: NavHostController, controller: PlaylistController) {
+fun HomeScreen(
+    navController: NavHostController,
+    controller: PlaylistController,
+) {
 
     val playlistList by controller.livePlaylistDataList.observeAsState()
 
